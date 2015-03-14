@@ -97,6 +97,44 @@ public class RouteExecutionManager {
 
     }
 
+    /**
+     * Whenever a new listener needs to get added to an instance of RouteExecution. Basically some observer wants to see
+     * the route as it is being executed
+     * 
+     * @param userId
+     * @param routeExecutionId
+     * @param listenerChannel
+     */
+    public void postRouteExecutionListener(String userId, String routeExecutionId, String listenerChannel) {
+
+        if (!StringUtils.hasText(routeExecutionId) || listenerChannel == null) {
+            // throw validation exception
+            throw new IllegalArgumentException("routeExecutionId and Channel that wants to listen are required");
+        }
+
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+        try {
+
+            RouteExecution routeExecution = pm.getObjectById(RouteExecution.class, routeExecutionId);
+            if (routeExecution == null) {
+                throw new IllegalArgumentException("Unknown Route Execution ID: " + routeExecutionId);
+            }
+
+            routeExecution.addChannelToUpdate(listenerChannel);
+            pm.makePersistent(routeExecution);
+
+        } catch (Exception e) {
+            // TODO
+            throw new RuntimeException(getClass().getName() + " - Unknown Error: " + e.getMessage());
+        } finally {
+            try {
+                pm.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+    
     public List<RouteExecutionDTO> getAssignedRouteExecutions(String userId) {
 
         if (!StringUtils.hasText(userId)) {

@@ -54,4 +54,19 @@ public class RouteExecutionController {
         return routeExecutionManager.getAssignedRouteExecution(userId, routeExecutionId);
     }
 
+    /**
+     * Whenever a new listener needs to get added to an instance of RouteExecution. Basically some observer wants to see
+     * the route as it is being executed
+     * @param userId
+     * @param routeExecutionId
+     * @param listenerChannel
+     */
+    @RequestMapping(value = "routeexecutions/{routeExecutionId}/listener", method = RequestMethod.POST)
+    public void postRouteExecutionListener(@RequestHeader("userId") String userId,
+                                           @PathVariable("routeExecutionId") String routeExecutionId,
+                                           @RequestParam String listenerChannel) {
+        routeExecutionManager.postRouteExecutionListener(userId, routeExecutionId, listenerChannel);
+    }
+
+
 }
