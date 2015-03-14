@@ -10,71 +10,71 @@ import java.util.UUID;
  */
 public class RouteLocation implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	protected String id;
+    protected String id;
 
-	protected Location location;
+    protected Location location;
 
-	protected RouteStop routeStop;
+    protected RouteStop routeStop;
 
-	public RouteLocation() {
-		setId(UUID.randomUUID().toString());
-	}
+    public RouteLocation() {
+        setId(UUID.randomUUID().toString());
+    }
 
-	public RouteLocation(RouteLocationDTO dto) {
+    public RouteLocation(RouteLocationDTO dto) {
 
-		this();
+        this();
 
-		if (dto.getLocation() != null) {
-			setLocation(new Location(dto.getLocation()));
-		}
+        if (dto.getLocation() != null) {
+            setLocation(new Location(dto.getLocation()));
+        }
 
-		if (dto.getRouteStop() != null) {
-			setRouteStop(new RouteStop(dto.getRouteStop()));
-		}
+        if (dto.getRouteStop() != null) {
+            setRouteStop(new RouteStop(dto.getRouteStop()));
+        }
 
-	}
+    }
 
-	public String getId() {
-		return id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public Location getLocation() {
-		return location;
-	}
+    public Location getLocation() {
+        return location;
+    }
 
-	public void setLocation(Location location) {
-		this.location = location;
-	}
+    public void setLocation(Location location) {
+        this.location = location;
+    }
 
-	public RouteStop getRouteStop() {
-		return routeStop;
-	}
+    public RouteStop getRouteStop() {
+        return routeStop;
+    }
 
-	public void setRouteStop(RouteStop routeStop) {
-		this.routeStop = routeStop;
-	}
+    public void setRouteStop(RouteStop routeStop) {
+        this.routeStop = routeStop;
+    }
 
-	public RouteLocationDTO getDTO() {
+    public RouteLocationDTO getDTO() {
 
-		RouteLocationDTO dto = new RouteLocationDTO();
+        RouteLocationDTO dto = new RouteLocationDTO();
 
-		dto.setId(id);
+        dto.setId(id);
 
-		if (location != null) {
-			dto.setLocation(location.getDTO());
-		}
+        if (location != null) {
+            dto.setLocation(location.getDTO());
+        }
 
-		if (routeStop != null) {
-			dto.setRouteStop(routeStop.getDTO());
-		}
+        if (routeStop != null) {
+            dto.setRouteStop(routeStop.getDTO());
+        }
 
-		return dto;
+        return dto;
 
-	}
+    }
 }

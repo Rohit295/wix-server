@@ -32,8 +32,8 @@ public class RouteExecution {
     @Persistent
     private long endTime;    // utc time
 
-    @Persistent
-    private String routeExecutorId;
+    @Persistent(serialized = "true")
+    private RouteExecutor routeExecutor;
 
     public RouteExecution() {
         setId(UUID.randomUUID().toString());
@@ -79,12 +79,12 @@ public class RouteExecution {
         this.endTime = endTime;
     }
 
-    public String getRouteExecutorId() {
-        return routeExecutorId;
+    public RouteExecutor getRouteExecutor() {
+        return routeExecutor;
     }
 
-    public void setRouteExecutorId(String routeExecutorId) {
-        this.routeExecutorId = routeExecutorId;
+    public void setRouteExecutor(RouteExecutor routeExecutor) {
+        this.routeExecutor = routeExecutor;
     }
 
     public RouteExecutionDTO getDTO() {
@@ -92,8 +92,6 @@ public class RouteExecution {
         RouteExecutionDTO dto = new RouteExecutionDTO();
         dto.setId(id);
         dto.setRouteId(routeId);
-        dto.setStartTime(startTime);
-        dto.setEndTime(endTime);
 
         List<RouteExecutionLocationDTO> locationDTOs = new ArrayList<RouteExecutionLocationDTO>();
         if (routeExecutionLocations != null) {
@@ -102,6 +100,13 @@ public class RouteExecution {
             }
         }
         dto.setRouteExecutionLocations(locationDTOs);
+
+        dto.setStartTime(startTime);
+        dto.setEndTime(endTime);
+
+        if (routeExecutor != null) {
+            dto.setRouteExecutor(routeExecutor.getDTO());
+        }
 
         return dto;
 

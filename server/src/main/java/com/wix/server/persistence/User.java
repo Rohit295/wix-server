@@ -1,6 +1,6 @@
 package com.wix.server.persistence;
 
-import com.wix.common.model.UserInfo;
+import com.wix.common.model.UserDTO;
 
 import java.util.UUID;
 
@@ -22,10 +22,31 @@ public class User {
     private String organizationId;
 
     @Persistent
+    private String name;
+
+    @Persistent
+    private String userName;
+
+    @Persistent
     private String emailId;
+
+    @Persistent
+    private boolean adminRole;
 
     public User() {
         setId(UUID.randomUUID().toString());
+    }
+
+    public User(UserDTO dto) {
+
+        this();
+
+        setOrganizationId(dto.getOrganizationId());
+        setName(dto.getName());
+        setUserName(dto.getUserName());
+        setEmailId(dto.getEmailId());
+        setAdminRole(dto.isAdminRole());
+
     }
 
     public String getId() {
@@ -44,6 +65,22 @@ public class User {
         this.organizationId = organizationId;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     public String getEmailId() {
         return emailId;
     }
@@ -52,12 +89,23 @@ public class User {
         this.emailId = emailId;
     }
 
-    public UserInfo getInfo() {
+    public boolean isAdminRole() {
+        return adminRole;
+    }
 
-        UserInfo info = new UserInfo();
+    public void setAdminRole(boolean adminRole) {
+        this.adminRole = adminRole;
+    }
+
+    public UserDTO getDTO() {
+
+        UserDTO info = new UserDTO();
         info.setId(id);
         info.setOrganizationId(organizationId);
+        info.setName(name);
+        info.setUserName(userName);
         info.setEmailId(emailId);
+        info.setAdminRole(adminRole);
 
         return info;
 

@@ -4,9 +4,14 @@ import com.wix.common.model.*;
 import com.wix.server.persistence.*;
 
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import java.util.logging.Logger;
 
+import javax.jdo.Extent;
 import javax.jdo.PersistenceManager;
 
 /**
@@ -15,98 +20,122 @@ import javax.jdo.PersistenceManager;
 @Component("routeExecutionManager")
 public class RouteExecutionManager {
 
-	public RouteExecutionDTO startRouteExecution(String userId, String routeId) {
+    private static final Logger log = Logger.getLogger(RouteExecutionManager.class.getName());
 
-		if (routeId == null) {
-			// throw validation exception
-			throw new IllegalArgumentException("routeId is required");
-		}
+    public RouteExecutionDTO updateRouteExecutionStatus(String userId, String routeExecutionId, RouteExecutionStatus routeExecutionStatus) {
 
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		try {
+        if (!StringUtils.hasText(routeExecutionId)) {
+            // throw validation exception
+            throw new IllegalArgumentException("routeExecutionId is required");
+        }
 
-			Route route = pm.getObjectById(Route.class, routeId);
-			if (route == null) {
-				throw new IllegalArgumentException("Unknown route");
-			}
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+        try {
 
-			// TODO validate userId
-			RouteExecutor routeExecutor = new RouteExecutor();
-			routeExecutor.setUserId(userId);
+            RouteExecution routeExecution = pm.getObjectById(RouteExecution.class, routeExecutionId);
+            if (routeExecution == null) {
+                throw new IllegalArgumentException("Unknown route execution");
+            }
 
-			RouteExecution routeExecution = new RouteExecution();
-			routeExecution.setRouteId(routeId);
-			routeExecution.setRouteExecutorId(routeExecutor.getId());
-			routeExecution.setStartTime(Calendar.getInstance().getTimeInMillis());
+            switch (routeExecutionStatus) {
+                case Started:
+                    routeExecution.setStartTime(Calendar.getInstance().getTimeInMillis());
+                    break;
+                case Finished:
+                    routeExecution.setEndTime(Calendar.getInstance().getTimeInMillis());
+                    break;
+                default:
+            }
 
-			pm.makePersistent(routeExecution);
+            pm.makePersistent(routeExecution);
 
-			return routeExecution.getDTO();
+            return routeExecution.getDTO();
 
-		} catch (Exception e) {
-			// TODO
-			e.printStackTrace();
-			throw new RuntimeException("Unknown error");
-		} finally {
-			try {
-				pm.close();
-			} catch (Exception e) {
-				// ignore
-			}
-		}
+        } catch (Exception e) {
+            // TODO
+            e.printStackTrace();
+            throw new RuntimeException("Unknown error");
+        } finally {
+            try {
+                pm.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
 
-	}
+    }
 
-	public void postRouteExecutionLocation(String userId, String routeExecutionId,
-			RouteExecutionLocationDTO routeExecutionLocationDTO) {
+    public void postRouteExecutionLocation(String userId, String routeExecutionId, RouteExecutionLocationDTO routeExecutionLocationDTO) {
 
-		if (routeExecutionId == null || routeExecutionLocationDTO == null) {
-			// throw validation exception
-			throw new IllegalArgumentException("routeExecutionId and dto are required");
-		}
+        if (!StringUtils.hasText(routeExecutionId) || routeExecutionLocationDTO == null) {
+            // throw validation exception
+            throw new IllegalArgumentException("routeExecutionId and dto are required");
+        }
 
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		try {
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+        try {
 
-			RouteExecution routeExecution = pm.getObjectById(RouteExecution.class, routeExecutionId);
-			if (routeExecution == null) {
-				throw new IllegalArgumentException("Unknown route execution");
-			}
+            RouteExecution routeExecution = pm.getObjectById(RouteExecution.class, routeExecutionId);
+            if (routeExecution == null) {
+                throw new IllegalArgumentException("Unknown route execution");
+            }
 
-			RouteExecutionLocation routeExecutionLocation = new RouteExecutionLocation(routeExecutionId,
-					routeExecutionLocationDTO);
+            RouteExecutionLocation routeExecutionLocation = new RouteExecutionLocation(routeExecutionId, routeExecutionLocationDTO);
 
-			pm.makePersistent(routeExecutionLocation);
+            pm.makePersistent(routeExecutionLocation);
 
-		} catch (Exception e) {
-			// TODO
-			e.printStackTrace();
-			throw new RuntimeException("Unknown error");
-		} finally {
-			try {
-				pm.close();
-			} catch (Exception e) {
-				// ignore
-			}
-		}
+        } catch (Exception e) {
+            // TODO
+            throw new RuntimeException("Unknown error");
+        } finally {
+            try {
+                pm.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
 
-	}
+    }
 
-	public RouteExecutionDTO getRouteExecution(Long routeExecutionId) {
+    public List<RouteExecutionDTO> getAssignedRouteExecutions(String userId) {
 
-		if (routeExecutionId == null) {
-			throw new IllegalArgumentException("route execution id is required");
-		}
+        if (!StringUtils.hasText(userId)) {
+            throw new IllegalArgumentException("userId is required");
+        }
 
-		PersistenceManager pm = PMF.get().getPersistenceManager();
+        PersistenceManager pm = PMF.get().getPersistenceManager();
 
-		RouteExecution routeExecution = pm.getObjectById(RouteExecution.class, routeExecutionId);
-		if (routeExecution == null) {
-			throw new IllegalArgumentException("Unknown route execution");
-		}
+        Extent<RouteExecution> routeExecutions = pm.getExtent(RouteExecution.class);
+        if (routeExecutions == null) {
+            return new ArrayList<>();
+        }
 
-		return routeExecution.getDTO();
+        List<RouteExecutionDTO> dtos = new ArrayList<>();
+        for (RouteExecution routeExecution : routeExecutions) {
+            if (routeExecution.getRouteExecutor().getUserId().equals(userId)) {
+                dtos.add(routeExecution.getDTO());
+            }
+        }
 
-	}
+        return dtos;
+
+    }
+
+    public RouteExecutionDTO getAssignedRouteExecution(String userId, String routeExecutionId) {
+
+        if (!StringUtils.hasText(routeExecutionId)) {
+            throw new IllegalArgumentException("route execution id is required");
+        }
+
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+
+        RouteExecution routeExecution = pm.getObjectById(RouteExecution.class, routeExecutionId);
+        if (routeExecution == null || !routeExecution.getRouteExecutor().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Unknown route execution");
+        }
+
+        return routeExecution.getDTO();
+
+    }
 
 }

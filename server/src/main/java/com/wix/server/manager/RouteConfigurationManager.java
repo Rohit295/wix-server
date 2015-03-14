@@ -1,17 +1,21 @@
 package com.wix.server.manager;
 
-import com.wix.common.model.RouteDTO;
-import com.wix.server.persistence.PMF;
-import com.wix.server.persistence.Route;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
+import javax.jdo.Extent;
+import javax.jdo.PersistenceManager;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.jdo.Extent;
-import javax.jdo.PersistenceManager;
+import com.wix.common.model.RouteDTO;
+import com.wix.common.model.RouteExecutionDTO;
+import com.wix.server.persistence.PMF;
+import com.wix.server.persistence.Route;
+import com.wix.server.persistence.RouteExecution;
+import com.wix.server.persistence.RouteExecutor;
 
 /**
  * Created by racastur on 05-03-2015.
@@ -19,91 +23,138 @@ import javax.jdo.PersistenceManager;
 @Component("routeConfigurationManager")
 public class RouteConfigurationManager {
 
-	public RouteDTO createUpdateRoute(RouteDTO routeDTO) {
+    private static final Logger log = Logger.getLogger(RouteConfigurationManager.class.getName());
 
-		if (routeDTO == null) {
-			// throw validation exception
-			throw new IllegalArgumentException("route is required");
-		}
+    public RouteDTO createUpdateRoute(RouteDTO routeDTO) {
 
-		PersistenceManager pm = PMF.get().getPersistenceManager();
+        if (routeDTO == null) {
+            // throw validation exception
+            throw new IllegalArgumentException("route is required");
+        }
 
-		try {
+        PersistenceManager pm = PMF.get().getPersistenceManager();
 
-			boolean newRoute = false;
+        try {
 
-			Route route;
-			if (StringUtils.hasText(routeDTO.getId())) {
+            boolean newRoute = false;
 
-				route = pm.getObjectById(Route.class, routeDTO.getId());
-				if (route == null) {
-					throw new IllegalArgumentException("Unknown route");
-				}
+            Route route;
+            if (StringUtils.hasText(routeDTO.getId())) {
 
-				// TODO check if the route re-naming clashes with a different route's name
+                route = pm.getObjectById(Route.class, routeDTO.getId());
+                if (route == null) {
+                    throw new IllegalArgumentException("Unknown route");
+                }
 
-				route.setName(routeDTO.getName());
-				route.setDefaultStopPurpose(routeDTO.getDefaultStopPurpose());
-				route.setExecutionStartTime(routeDTO.getExecutionStartTime());
+                // TODO check if the route re-naming clashes with a different route's name
 
-			} else {
-				newRoute = true;
-				route = new Route(routeDTO);
-			}
+                route.setName(routeDTO.getName());
+                route.setOrganizationId(routeDTO.getOrganizationId());
+                route.setDefaultStopPurpose(routeDTO.getDefaultStopPurpose());
+                route.setExecutionStartTime(routeDTO.getExecutionStartTime());
+                //route.setRouteLocations(routeDTO.getRouteLocations());
 
-			if (newRoute) {
-				pm.makePersistent(route);
-			}
+            } else {
+                newRoute = true;
+                route = new Route(routeDTO);
+            }
 
-			return route.getDTO();
+            if (newRoute) {
+                pm.makePersistent(route);
+            }
 
-		} catch (Exception e) {
-			// TODO
-			e.printStackTrace();
-			throw new RuntimeException("Unknown error");
-		} finally {
-			try {
-				pm.close();
-			} catch (Exception e) {
-				// ignore
-			}
-		}
+            return route.getDTO();
 
-	}
+        } catch (Exception e) {
+            // TODO
+            e.printStackTrace();
+            throw new RuntimeException("Unknown error");
+        } finally {
+            try {
+                pm.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
 
-	public List<RouteDTO> getAllRoutes() {
+    }
 
-		PersistenceManager pm = PMF.get().getPersistenceManager();
+    public RouteExecutionDTO assignRouteExecution(String routeId, String userId, String deviceId) {
 
-		Extent<Route> routeExtent = pm.getExtent(Route.class);
-		if (routeExtent == null) {
-			return new ArrayList<RouteDTO>();
-		}
+        if (!StringUtils.hasText(routeId) || !StringUtils.hasText(userId) || !StringUtils.hasText(deviceId)) {
+            // throw validation exception
+            throw new IllegalArgumentException("routeId, userId, deviceId are required");
+        }
 
-		List<RouteDTO> dtos = new ArrayList<RouteDTO>();
-		for (Route route : routeExtent) {
-			dtos.add(route.getDTO());
-		}
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+        try {
 
-		return dtos;
+            Route route = pm.getObjectById(Route.class, routeId);
+            if (route == null) {
+                throw new IllegalArgumentException("Unknown route");
+            }
 
-	}
+            RouteExecution routeExecution = new RouteExecution();
+            routeExecution.setRouteId(routeId);
 
-	public RouteDTO getRoute(String routeId, boolean includeRouteStops) {
+            // TODO validate userId
+            RouteExecutor routeExecutor = new RouteExecutor();
+            routeExecutor.setUserId(userId);
+            routeExecutor.setDeviceId(deviceId);
 
-		if (!StringUtils.hasText(routeId)) {
-			throw new IllegalArgumentException("route id is required");
-		}
+            routeExecution.setRouteExecutor(routeExecutor);
 
-		PersistenceManager pm = PMF.get().getPersistenceManager();
+            pm.makePersistent(routeExecution);
 
-		Route route = pm.getObjectById(Route.class, routeId);
-		if (route == null) {
-			throw new IllegalArgumentException("Unknown route");
-		}
+            return routeExecution.getDTO();
 
-		return route.getDTO();
+        } catch (Exception e) {
+            // TODO
+            e.printStackTrace();
+            throw new RuntimeException("Unknown error");
+        } finally {
+            try {
+                pm.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
 
-	}
+    }
+
+    public List<RouteDTO> getAllRoutes() {
+
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+
+        Extent<Route> routeExtent = pm.getExtent(Route.class);
+        if (routeExtent == null) {
+            return new ArrayList<RouteDTO>();
+        }
+
+        List<RouteDTO> dtos = new ArrayList<RouteDTO>();
+        for (Route route : routeExtent) {
+            dtos.add(route.getDTO());
+        }
+
+        return dtos;
+
+    }
+
+    public RouteDTO getRoute(String routeId, boolean includeRouteStops) {
+
+        if (!StringUtils.hasText(routeId)) {
+            throw new IllegalArgumentException("route id is required");
+        }
+
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+
+        Route route = pm.getObjectById(Route.class, routeId);
+        if (route == null) {
+            throw new IllegalArgumentException("Unknown route");
+        }
+
+        return route.getDTO();
+
+    }
 
 }
