@@ -5,8 +5,6 @@
 <html style="min-width:1360px;">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-		<meta http-equiv="Pragma" content="no-cache" />
-    	<meta http-equiv="expires" content="-1" />
     	<title>WIX - User Console</title>
 
 		<link rel="stylesheet" href="/css/wix_new.css">
