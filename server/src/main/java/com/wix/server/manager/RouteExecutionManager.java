@@ -54,7 +54,7 @@ public class RouteExecutionManager {
         } catch (Exception e) {
             // TODO
             e.printStackTrace();
-            throw new RuntimeException("Unknown error");
+            throw new RuntimeException("Unknown error", e);
         } finally {
             try {
                 pm.close();
@@ -81,12 +81,14 @@ public class RouteExecutionManager {
             }
 
             RouteExecutionLocation routeExecutionLocation = new RouteExecutionLocation(routeExecutionId, routeExecutionLocationDTO);
-
-            pm.makePersistent(routeExecutionLocation);
+            if (routeExecution.getRouteExecutionLocations() == null) {
+                routeExecution.setRouteExecutionLocations(new ArrayList<RouteExecutionLocation>());
+            }
+            routeExecution.getRouteExecutionLocations().add(routeExecutionLocation);
 
         } catch (Exception e) {
             // TODO
-            throw new RuntimeException("Unknown error");
+            throw new RuntimeException("Unknown error", e);
         } finally {
             try {
                 pm.close();
@@ -98,9 +100,9 @@ public class RouteExecutionManager {
     }
 
     /**
-     * Whenever a new listener needs to get added to / removed from an instance of RouteExecution. Basically some observer wants 
+     * Whenever a new listener needs to get added to / removed from an instance of RouteExecution. Basically some observer wants
      * to see the route as it is being executed OR is finished observing
-     * 
+     *
      * @param userId
      * @param routeExecutionId
      * @param listenerChannel
@@ -121,10 +123,10 @@ public class RouteExecutionManager {
             }
 
             if (action.compareTo("add") == 0)
-            	routeExecution.addChannelToUpdate(listenerChannel);
+                routeExecution.addChannelToUpdate(listenerChannel);
             else if (action.compareTo("remove") == 0)
-            	routeExecution.removeChannelFromUpdate(listenerChannel);
-            
+                routeExecution.removeChannelFromUpdate(listenerChannel);
+
             pm.makePersistent(routeExecution);
 
         } catch (Exception e) {
@@ -138,7 +140,7 @@ public class RouteExecutionManager {
             }
         }
     }
-    
+
     public List<RouteExecutionDTO> getAssignedRouteExecutions(String userId) {
 
         if (!StringUtils.hasText(userId)) {
@@ -180,10 +182,9 @@ public class RouteExecutionManager {
 
     }
 
-    
     /**
      * Get the route execution details for a specific route execution
-     * 
+     *
      * @param routeExecutionID
      * @return
      */
@@ -194,19 +195,21 @@ public class RouteExecutionManager {
 
         PersistenceManager pm = PMF.get().getPersistenceManager();
         RouteExecution routeExecution = pm.getObjectById(RouteExecution.class, routeExecutionID);
-        return routeExecution.getDTO();    	
+        return routeExecution.getDTO();
     }
 
     /**
      * get the route executions that a specific consumer could be interested in
+     *
      * @param consumerID
      * @return
      */
     public List<String> getRouteExecutionsForConsumer(String consumerID) {
         PersistenceManager pm = PMF.get().getPersistenceManager();
-        
+
         // TODO Consumer is interested in Route, each Route has RouteExecutions
-    	
+
         return null;
     }
+
 }

@@ -2,17 +2,18 @@ package com.wix.server.persistence;
 
 import com.wix.common.model.RouteExecutionLocationDTO;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.UUID;
 
 /**
  * Created by racastur on 12-11-2014.
  */
-public class RouteExecutionLocation {
+public class RouteExecutionLocation implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String id;
-
-    private String routeExecutionId;
 
     private Location location;
 
@@ -28,7 +29,6 @@ public class RouteExecutionLocation {
 
         this();
 
-        setRouteExecutionId(routeExecutionId);
         setLocation(new Location(dto.getLocation()));
         setTimestamp(Calendar.getInstance().getTimeInMillis());
 
@@ -44,14 +44,6 @@ public class RouteExecutionLocation {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getRouteExecutionId() {
-        return routeExecutionId;
-    }
-
-    public void setRouteExecutionId(String routeExecutionId) {
-        this.routeExecutionId = routeExecutionId;
     }
 
     public Location getLocation() {

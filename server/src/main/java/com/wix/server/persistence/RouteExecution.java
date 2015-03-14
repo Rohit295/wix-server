@@ -27,9 +27,8 @@ public class RouteExecution {
     private List<RouteExecutionLocation> routeExecutionLocations;
 
     // List of Channels that are currently interested in this RouteExecution
-	@Persistent(serialized = "true")
-	private ArrayList<String> channelsToUpdate;
-
+    @Persistent(serialized = "true")
+    private ArrayList<String> channelsToUpdate;
 
     @Persistent
     private long startTime;  // utc time
@@ -116,20 +115,20 @@ public class RouteExecution {
         return dto;
     }
 
-	public ArrayList<String> getChannelsToUpdate() {
-		return channelsToUpdate;
-	}
-
-	public void setChannelsToUpdate(ArrayList<String> channelsToUpdate) {
-		this.channelsToUpdate = channelsToUpdate;
-	}
-    
-    public void addChannelToUpdate(String channelToUpdate) {
-    	this.channelsToUpdate.add(channelToUpdate);
+    public ArrayList<String> getChannelsToUpdate() {
+        return channelsToUpdate;
     }
-    
+
+    public void setChannelsToUpdate(ArrayList<String> channelsToUpdate) {
+        this.channelsToUpdate = channelsToUpdate;
+    }
+
+    public void addChannelToUpdate(String channelToUpdate) {
+        this.channelsToUpdate.add(channelToUpdate);
+    }
+
     public void removeChannelFromUpdate(String channelToRemove) {
-    	channelsToUpdate.remove(channelToRemove);
+        channelsToUpdate.remove(channelToRemove);
     }
 
 }

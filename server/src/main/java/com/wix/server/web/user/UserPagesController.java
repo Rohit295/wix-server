@@ -43,7 +43,7 @@ public class UserPagesController {
 		
     	
 		String channelID = getChannelForConsumer(userID);
-		List<RouteExecutionDTO> listOfRouteExecutions = getRoutesExecutionsOfInterest(userID);
+		List<String> listOfRouteExecutions = getRoutesExecutionsOfInterest(userID);
 
 		ModelAndView mav = new ModelAndView("user/console");
 		mav.addObject("channelID", channelID);
