@@ -1,84 +1,79 @@
 package com.wix.server.endpoint;
 
-import com.wix.common.model.UserInfo;
-import com.wix.server.persistence.Device;
+import com.wix.common.model.UserDTO;
+import com.wix.server.persistence.PMF;
 import com.wix.server.persistence.User;
-import com.wix.server.persistence.UserDevice;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
+import java.util.List;
 import java.util.logging.Logger;
-
-import static com.wix.server.OfyService.ofy;
 
 @RestController
 @RequestMapping("/services/v1/*")
 public class RegistrationEndpoint {
 
-	private static final Logger log = Logger.getLogger(RegistrationEndpoint.class.getName());
+    private static final Logger log = Logger.getLogger(RegistrationEndpoint.class.getName());
 
-	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public UserInfo login(@RequestParam("emailId") String emailId) {
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    public UserDTO login(@RequestParam("emailId") String emailId) {
 
-		User user = findUserByEmailId(emailId);
-		if (user == null) {
-			user = new User();
-			user.setEmailId(emailId);
-			ofy().save().entity(user).now();
-		}
+        User user = findUserByEmail(emailId);
+        if (user == null) {
+            return null;
+        }
 
-		return user.getInfo();
+        return user.getDTO();
 
-	}
+    }
 
-	@RequestMapping(value = "/register", method = RequestMethod.POST)
-	public void register(@RequestParam("userId") String userId, @RequestParam("deviceId") String deviceId,
-			@RequestParam("gcmRegistrationId") String gcmRegistrationId) {
+    @RequestMapping(value = "/register", method = RequestMethod.POST)
+    public void register(@RequestParam("userId") String userId,
+                         @RequestParam("deviceId") String deviceId,
+                         @RequestParam("gcmRegistrationId") String gcmRegistrationId) {
 
-		if (findDeviceByGcmRegistrationId(gcmRegistrationId) == null) {
 
-			Device record = new Device();
-			record.setId(deviceId);
-			record.setGcmRegistrationId(gcmRegistrationId);
+    }
 
-			ofy().save().entity(record).now();
+    private User findUserByEmail(String emailId) {
 
-		}
+        PersistenceManager pm = PMF.get().getPersistenceManager();
 
-		// TODO this is not clear!!!
-		User user = findUserByUserId(userId);
-		if (user == null) {
-			throw new RuntimeException("User with [" + userId + "] does not exist");
-		}
+        Query q = pm.newQuery(User.class);
+        q.setFilter("emailId == emailIdParam");
+        q.declareParameters("String emailIdParam");
 
-		UserDevice userDevice = findUserDeviceByUserId(userId);
-		if (userDevice == null) {
-			userDevice = new UserDevice();
-			userDevice.setUserId(userId);
-		}
-		userDevice.setDeviceId(deviceId);
+        try {
 
-		ofy().save().entity(userDevice).now();
+            List<User> results = (List<User>) q.execute(emailId);
+            if (results == null || results.isEmpty() || results.size() > 1) {
+                return null;
+            }
 
-	}
+            return results.get(0);
 
-	private User findUserByUserId(String userId) {
-		return ofy().load().type(User.class).filter("userId", userId).first().now();
-	}
+        } finally {
+            q.closeAll();
+        }
 
-	private User findUserByEmailId(String emailId) {
-		return ofy().load().type(User.class).filter("emailId", emailId).first().now();
-	}
+    }
 
-	private UserDevice findUserDeviceByUserId(String userId) {
-		return ofy().load().type(UserDevice.class).filter("userId", userId).first().now();
-	}
+    private User findUserById(String userId) {
 
-	private Device findDeviceByGcmRegistrationId(String gcmRegistrationId) {
-		return ofy().load().type(Device.class).filter("gcmRegistrationId", gcmRegistrationId).first().now();
-	}
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+
+        User user = pm.getObjectById(User.class, userId);
+        if (user == null) {
+            throw new IllegalArgumentException("unknown user");
+        }
+
+        return user;
+
+    }
 
 }

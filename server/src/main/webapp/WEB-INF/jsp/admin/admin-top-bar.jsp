@@ -32,6 +32,7 @@
             <li <c:if test="${activeTab == 'index'}">class="active"</c:if>><a href="/admin/index">Home</a></li>
             <li <c:if test="${activeTab == 'routes'}">class="active"</c:if>><a href="/admin/routes">Routes</a></li>
             <li <c:if test="${activeTab == 'analytics'}">class="active"</c:if>><a href="/admin/analytics">Analytics</a></li>
+            <li <c:if test="${activeTab == 'users'}">class="active"</c:if>><a href="/admin/users">Users</a></li>
           </ul>
      </div>
 

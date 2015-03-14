@@ -7,68 +7,68 @@ import java.util.List;
  */
 public class RouteExecutionDTO {
 
-	private String id;
+    private String id;
 
-	private String routeId;
+    private String routeId;
 
-	private List<RouteExecutionLocationDTO> routeExecutionLocations;
+    private List<RouteExecutionLocationDTO> routeExecutionLocations;
 
-	private long startTime; // utc time
+    private long startTime; // utc time
 
-	private long endTime; // utc time
+    private long endTime; // utc time
 
-	private String routeExecutorId;
+    private RouteExecutorDTO routeExecutor;
 
-	public RouteExecutionDTO() {
+    public RouteExecutionDTO() {
 
-	}
+    }
 
-	public String getId() {
-		return id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public String getRouteId() {
-		return routeId;
-	}
+    public String getRouteId() {
+        return routeId;
+    }
 
-	public void setRouteId(String routeId) {
-		this.routeId = routeId;
-	}
+    public void setRouteId(String routeId) {
+        this.routeId = routeId;
+    }
 
-	public List<RouteExecutionLocationDTO> getRouteExecutionLocations() {
-		return routeExecutionLocations;
-	}
+    public List<RouteExecutionLocationDTO> getRouteExecutionLocations() {
+        return routeExecutionLocations;
+    }
 
-	public void setRouteExecutionLocations(List<RouteExecutionLocationDTO> routeExecutionLocations) {
-		this.routeExecutionLocations = routeExecutionLocations;
-	}
+    public void setRouteExecutionLocations(List<RouteExecutionLocationDTO> routeExecutionLocations) {
+        this.routeExecutionLocations = routeExecutionLocations;
+    }
 
-	public long getStartTime() {
-		return startTime;
-	}
+    public long getStartTime() {
+        return startTime;
+    }
 
-	public void setStartTime(long startTime) {
-		this.startTime = startTime;
-	}
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
 
-	public long getEndTime() {
-		return endTime;
-	}
+    public long getEndTime() {
+        return endTime;
+    }
 
-	public void setEndTime(long endTime) {
-		this.endTime = endTime;
-	}
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
+    }
 
-	public String getRouteExecutorId() {
-		return routeExecutorId;
-	}
+    public RouteExecutorDTO getRouteExecutor() {
+        return routeExecutor;
+    }
 
-	public void setRouteExecutorId(String routeExecutorId) {
-		this.routeExecutorId = routeExecutorId;
-	}
+    public void setRouteExecutor(RouteExecutorDTO routeExecutor) {
+        this.routeExecutor = routeExecutor;
+    }
 
 }

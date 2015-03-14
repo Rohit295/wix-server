@@ -3,15 +3,21 @@ package com.wix.common.model;
 /**
  * Created by racastur on 01-11-2014.
  */
-public class UserInfo {
+public class UserDTO {
 
     private String id;
 
     private String organizationId;
 
+    private String name;
+
     private String emailId;
 
-    public UserInfo() {
+    private String userName;
+
+    private boolean adminRole;
+
+    public UserDTO() {
 
     }
 
@@ -31,6 +37,22 @@ public class UserInfo {
         this.organizationId = organizationId;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     public String getEmailId() {
         return emailId;
     }
@@ -38,4 +60,13 @@ public class UserInfo {
     public void setEmailId(String emailId) {
         this.emailId = emailId;
     }
+
+    public boolean isAdminRole() {
+        return adminRole;
+    }
+
+    public void setAdminRole(boolean adminRole) {
+        this.adminRole = adminRole;
+    }
+
 }

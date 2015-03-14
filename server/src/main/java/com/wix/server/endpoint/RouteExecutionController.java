@@ -2,6 +2,7 @@ package com.wix.server.endpoint;
 
 import com.wix.common.model.RouteExecutionDTO;
 import com.wix.common.model.RouteExecutionLocationDTO;
+import com.wix.common.model.RouteExecutionStatus;
 import com.wix.server.manager.RouteExecutionManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -21,27 +24,34 @@ import java.util.logging.Logger;
 @RequestMapping("/services/v1/*")
 public class RouteExecutionController {
 
-	private static final Logger log = Logger.getLogger(RouteExecutionController.class.getName());
+    private static final Logger log = Logger.getLogger(RouteExecutionController.class.getName());
 
-	@Autowired
-	private RouteExecutionManager routeExecutionManager;
+    @Autowired
+    private RouteExecutionManager routeExecutionManager;
 
-	@RequestMapping(value = "routes/{routeId}/executions", method = RequestMethod.POST)
-	public RouteExecutionDTO startRouteExecution(@PathVariable("routeId") String routeId,
-			@RequestHeader("userId") String userId) {
-		return routeExecutionManager.startRouteExecution(userId, routeId);
-	}
+    @RequestMapping(value = "routeexecutions/{routeExecutionId}/status", method = RequestMethod.POST)
+    public RouteExecutionDTO updateRouteExecutionStatus(@RequestHeader("userId") String userId,
+                                                        @PathVariable("routeExecutionId") String routeExecutionId,
+                                                        @RequestParam("executionStatus") RouteExecutionStatus routeExecutionStatus) {
+        return routeExecutionManager.updateRouteExecutionStatus(userId, routeExecutionId, routeExecutionStatus);
+    }
 
-	@RequestMapping(value = "routeexecutions/{routeExecutionId}/location", method = RequestMethod.POST)
-	public void postRouteExecutionLocation(@PathVariable("routeExecutionId") String routeExecutionId,
-			@RequestHeader("userId") String userId, @RequestBody RouteExecutionLocationDTO routeExecutionLocationDTO) {
-		routeExecutionManager.postRouteExecutionLocation(userId, routeExecutionId, routeExecutionLocationDTO);
-	}
+    @RequestMapping(value = "routeexecutions/{routeExecutionId}/location", method = RequestMethod.POST)
+    public void postRouteExecutionLocation(@RequestHeader("userId") String userId,
+                                           @PathVariable("routeExecutionId") String routeExecutionId,
+                                           @RequestBody RouteExecutionLocationDTO routeExecutionLocationDTO) {
+        routeExecutionManager.postRouteExecutionLocation(userId, routeExecutionId, routeExecutionLocationDTO);
+    }
 
-	@RequestMapping(value = "routeexecutions/{routeExecutionId}", method = RequestMethod.GET)
-	public RouteExecutionDTO getRouteExecution(@PathVariable("routeExecutionId") Long routeExecutionId,
-			@RequestHeader("userId") String userId) {
-		return routeExecutionManager.getRouteExecution(routeExecutionId);
-	}
+    @RequestMapping(value = "routeexecutions", method = RequestMethod.GET)
+    public List<RouteExecutionDTO> getAssignedRouteExecutions(@RequestHeader("userId") String userId) {
+        return routeExecutionManager.getAssignedRouteExecutions(userId);
+    }
+
+    @RequestMapping(value = "routeexecutions/{routeExecutionId}", method = RequestMethod.GET)
+    public RouteExecutionDTO getAssignedRouteExecution(@RequestHeader("userId") String userId,
+                                                       @PathVariable("routeExecutionId") String routeExecutionId) {
+        return routeExecutionManager.getAssignedRouteExecution(userId, routeExecutionId);
+    }
 
 }

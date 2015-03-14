@@ -10,81 +10,87 @@ import java.util.UUID;
  */
 public class RouteExecutionLocation {
 
-	private String id;
+    private String id;
 
-	private String routeExecutionId;
+    private String routeExecutionId;
 
-	private Location location;
+    private Location location;
 
-	private long timestamp; // utc time
+    private long timestamp; // utc time
 
-	private RouteExecutionStop routeExecutionStop;
+    private RouteExecutionStop routeExecutionStop;
 
-	public RouteExecutionLocation() {
-		setId(UUID.randomUUID().toString());
-	}
+    public RouteExecutionLocation() {
+        setId(UUID.randomUUID().toString());
+    }
 
-	public RouteExecutionLocation(String routeExecutionId, RouteExecutionLocationDTO dto) {
+    public RouteExecutionLocation(String routeExecutionId, RouteExecutionLocationDTO dto) {
 
-		this();
+        this();
 
-		setRouteExecutionId(routeExecutionId);
-		setLocation(new Location(dto.getLocation()));
-		setTimestamp(Calendar.getInstance().getTimeInMillis());
-		setRouteExecutionStop(new RouteExecutionStop(dto.getRouteExecutionStop()));
+        setRouteExecutionId(routeExecutionId);
+        setLocation(new Location(dto.getLocation()));
+        setTimestamp(Calendar.getInstance().getTimeInMillis());
 
-	}
+        if (dto.getRouteExecutionStop() != null) {
+            setRouteExecutionStop(new RouteExecutionStop(dto.getRouteExecutionStop()));
+        }
 
-	public String getId() {
-		return id;
-	}
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public String getRouteExecutionId() {
-		return routeExecutionId;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public void setRouteExecutionId(String routeExecutionId) {
-		this.routeExecutionId = routeExecutionId;
-	}
+    public String getRouteExecutionId() {
+        return routeExecutionId;
+    }
 
-	public Location getLocation() {
-		return location;
-	}
+    public void setRouteExecutionId(String routeExecutionId) {
+        this.routeExecutionId = routeExecutionId;
+    }
 
-	public void setLocation(Location location) {
-		this.location = location;
-	}
+    public Location getLocation() {
+        return location;
+    }
 
-	public long getTimestamp() {
-		return timestamp;
-	}
+    public void setLocation(Location location) {
+        this.location = location;
+    }
 
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
-	}
+    public long getTimestamp() {
+        return timestamp;
+    }
 
-	public RouteExecutionStop getRouteExecutionStop() {
-		return routeExecutionStop;
-	}
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
 
-	public void setRouteExecutionStop(RouteExecutionStop routeExecutionStop) {
-		this.routeExecutionStop = routeExecutionStop;
-	}
+    public RouteExecutionStop getRouteExecutionStop() {
+        return routeExecutionStop;
+    }
 
-	public RouteExecutionLocationDTO getDTO() {
+    public void setRouteExecutionStop(RouteExecutionStop routeExecutionStop) {
+        this.routeExecutionStop = routeExecutionStop;
+    }
 
-		RouteExecutionLocationDTO dto = new RouteExecutionLocationDTO();
-		dto.setId(id);
-		dto.setLocation(location.getDTO());
-		dto.setTimestamp(timestamp);
-		dto.setRouteExecutionStop(routeExecutionStop.getDTO());
+    public RouteExecutionLocationDTO getDTO() {
 
-		return dto;
+        RouteExecutionLocationDTO dto = new RouteExecutionLocationDTO();
+        dto.setId(id);
+        dto.setLocation(location.getDTO());
+        dto.setTimestamp(timestamp);
 
-	}
+        if (routeExecutionStop != null) {
+            dto.setRouteExecutionStop(routeExecutionStop.getDTO());
+        }
+
+        return dto;
+
+    }
 
 }
