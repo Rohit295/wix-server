@@ -9,17 +9,16 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.google.appengine.api.channel.ChannelService;
 import com.google.appengine.api.channel.ChannelServiceFactory;
-import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.wix.common.model.LocationDTO;
+import com.wix.common.model.RouteExecutionDTO;
+import com.wix.server.manager.RouteExecutionManager;
+import com.wix.server.persistence.RouteExecutionLocation;
 
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
@@ -37,17 +36,45 @@ public class UserPagesController {
     @RequestMapping("/user/console")
     public ModelAndView getUserConsole() {
     	
-    	// TODO Create a proper channel for this user. Add that to the track(s) that the user is following
-    	
-    	// get the current user ID, to create a Channel 
+    	// get the Consumer's user ID
 		UserService userService = UserServiceFactory.getUserService();
 		String userID = "rohit295@gmail.com";
 		//String userID = userService.getCurrentUser().getUserId();
 		
+    	
+		String channelID = getChannelForConsumer(userID);
+		List<RouteExecutionDTO> listOfRouteExecutions = getRoutesExecutionsOfInterest(userID);
+
+		ModelAndView mav = new ModelAndView("user/console");
+		mav.addObject("channelID", channelID);
+		mav.addObject("RouteExecutions", listOfRouteExecutions);
+		
+        return mav;
+    }
+    
+    private String getChannelForConsumer(String userID) {
 		ChannelService channelService = ChannelServiceFactory.getChannelService();
 		String channelID = channelService.createChannel(userID);
-    			
-        return new ModelAndView("user/console", "channelID", channelID);
+		
+		return channelID;
+    }
+    
+    /**
+     * Given a specific user, identify the Routes this user could be interested in
+     * @param userID
+     * @return
+     */
+    private List<String> getRoutesExecutionsOfInterest(String userID) {
+    	RouteExecutionManager routeExecutionManager = new RouteExecutionManager();
+    	List<String> listOfRouteExecutions = routeExecutionManager.getRouteExecutionsForConsumer(userID);
+    	
+    	return listOfRouteExecutions;
+    }
+    
+    private List<RouteExecutionLocation> getLocationsOnRouteExecution(String routeExecutionID) {
+    	
+    	
+    	return null;
     }
     
     /**

@@ -98,14 +98,14 @@ public class RouteExecutionManager {
     }
 
     /**
-     * Whenever a new listener needs to get added to an instance of RouteExecution. Basically some observer wants to see
-     * the route as it is being executed
+     * Whenever a new listener needs to get added to / removed from an instance of RouteExecution. Basically some observer wants 
+     * to see the route as it is being executed OR is finished observing
      * 
      * @param userId
      * @param routeExecutionId
      * @param listenerChannel
      */
-    public void postRouteExecutionListener(String userId, String routeExecutionId, String listenerChannel) {
+    public void manageRouteExecutionListener(String userId, String routeExecutionId, String listenerChannel, String action) {
 
         if (!StringUtils.hasText(routeExecutionId) || listenerChannel == null) {
             // throw validation exception
@@ -120,7 +120,11 @@ public class RouteExecutionManager {
                 throw new IllegalArgumentException("Unknown Route Execution ID: " + routeExecutionId);
             }
 
-            routeExecution.addChannelToUpdate(listenerChannel);
+            if (action.compareTo("add") == 0)
+            	routeExecution.addChannelToUpdate(listenerChannel);
+            else if (action.compareTo("remove") == 0)
+            	routeExecution.removeChannelFromUpdate(listenerChannel);
+            
             pm.makePersistent(routeExecution);
 
         } catch (Exception e) {
@@ -176,4 +180,33 @@ public class RouteExecutionManager {
 
     }
 
+    
+    /**
+     * Get the route execution details for a specific route execution
+     * 
+     * @param routeExecutionID
+     * @return
+     */
+    public RouteExecutionDTO getRouteExecutionByID(String routeExecutionID) {
+        if (!StringUtils.hasText(routeExecutionID)) {
+            throw new IllegalArgumentException("route execution id is required");
+        }
+
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+        RouteExecution routeExecution = pm.getObjectById(RouteExecution.class, routeExecutionID);
+        return routeExecution.getDTO();    	
+    }
+
+    /**
+     * get the route executions that a specific consumer could be interested in
+     * @param consumerID
+     * @return
+     */
+    public List<String> getRouteExecutionsForConsumer(String consumerID) {
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+        
+        // TODO Consumer is interested in Route, each Route has RouteExecutions
+    	
+        return null;
+    }
 }

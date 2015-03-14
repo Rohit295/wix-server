@@ -93,19 +93,5 @@ public class TrackLocation {
 
     }
 
-    /**
-     * Every time a location is updated, check to see which all Track Listeners are interested in
-     * knowing about updates and send them the update
-     */
-    @OnSave
-    private void notifyListeners() {
-        TrackListener listeners = ofy().load().type(TrackListener.class).filter("trackID == ", trackId).first().now();
-        java.util.List<String> channelsToUpdate = listeners.getChannelsToUpdate();
-
-        // Loop through all the Channels and update that there is a new location
-        for (String channelToUpdate : channelsToUpdate) {
-			
-		} 
-    }
 
 }

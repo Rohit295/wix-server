@@ -61,11 +61,25 @@ public class RouteExecutionController {
      * @param routeExecutionId
      * @param listenerChannel
      */
-    @RequestMapping(value = "routeexecutions/{routeExecutionId}/listener", method = RequestMethod.POST)
-    public void postRouteExecutionListener(@RequestHeader("userId") String userId,
+    @RequestMapping(value = "routeexecutions/{routeExecutionId}/addListener", method = RequestMethod.POST)
+    public void addRouteExecutionListener(@RequestHeader("userId") String userId,
                                            @PathVariable("routeExecutionId") String routeExecutionId,
                                            @RequestParam String listenerChannel) {
-        routeExecutionManager.postRouteExecutionListener(userId, routeExecutionId, listenerChannel);
+        routeExecutionManager.manageRouteExecutionListener(userId, routeExecutionId, listenerChannel, "add");
+    }
+
+    /**
+     * Whenever a listener needs to get removed from an instance of RouteExecution. Basically some observer is done seeing
+     * the route as it is being executed
+     * @param userId
+     * @param routeExecutionId
+     * @param listenerChannel
+     */
+    @RequestMapping(value = "routeexecutions/{routeExecutionId}/removeListener", method = RequestMethod.POST)
+    public void removeRouteExecutionListener(@RequestHeader("userId") String userId,
+                                           @PathVariable("routeExecutionId") String routeExecutionId,
+                                           @RequestParam String listenerChannel) {
+        routeExecutionManager.manageRouteExecutionListener(userId, routeExecutionId, listenerChannel, "remove");
     }
 
 

@@ -33,7 +33,7 @@ function sendRouteToTrack(routeID) {
  * 
  * 
  */
-function socket_onOpen{
+function socket_onOpen() {
 	
 }
 
@@ -50,4 +50,7 @@ function socket_onMessage(message) {
 	
 }
 
-function socket_onError
+
+function socket_onClose() {
+	
+}
