@@ -52,9 +52,9 @@ public class UserPagesController {
         return mav;
     }
     
-    private String getChannelForConsumer(String userID) {
+    private String getChannelForConsumer(String consumerID) {
 		ChannelService channelService = ChannelServiceFactory.getChannelService();
-		String channelID = channelService.createChannel(userID);
+		String channelID = channelService.createChannel(consumerID);
 		
 		return channelID;
     }
@@ -64,9 +64,9 @@ public class UserPagesController {
      * @param userID
      * @return
      */
-    private List<String> getRoutesExecutionsOfInterest(String userID) {
+    private List<String> getRoutesExecutionsOfInterest(String consumerID) {
     	RouteExecutionManager routeExecutionManager = new RouteExecutionManager();
-    	List<String> listOfRouteExecutions = routeExecutionManager.getRouteExecutionsForConsumer(userID);
+    	List<String> listOfRouteExecutions = routeExecutionManager.getRouteExecutionsForConsumer(consumerID);
     	
     	return listOfRouteExecutions;
     }

@@ -22,12 +22,17 @@
 			  	var map = new google.maps.Map(document.getElementById('UCMapCanvas'), mapOptions);
 			}
 			google.maps.event.addDomListener(window, 'load', initialize);
+			
+			// Load the Channel Id from here
+			var channel;
+			channel = goog.appengine.channel("${channelID}");
+
 		</script>
  
 	</head>
 	<body>
 		<div id="UCMapCanvas" class="UCMapCanvas"></div>
 		Rohit Mani
-		
+		<a  href="#" onclick="startMonitoringRoute(); return false;">Start Monitoring</a>
 	</body>
 </html>

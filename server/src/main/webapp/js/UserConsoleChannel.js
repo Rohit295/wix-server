@@ -2,8 +2,6 @@
  * All Code related to channel opening for each USer Console page is driven out of here
  */
 
-var channel;
-
 /**
  * startMonitoringRoute: called when user wants to start monitoring any kind of asset
  */

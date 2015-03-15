@@ -142,6 +142,7 @@ public class RouteExecutionManager {
     }
 
     public List<RouteExecutionDTO> getAssignedRouteExecutions(String userId) {
+    	// TODO this method name should match similar method to get Routes for a specific consumer
 
         if (!StringUtils.hasText(userId)) {
             throw new IllegalArgumentException("userId is required");
@@ -207,9 +208,18 @@ public class RouteExecutionManager {
     public List<String> getRouteExecutionsForConsumer(String consumerID) {
         PersistenceManager pm = PMF.get().getPersistenceManager();
 
-        // TODO Consumer is interested in Route, each Route has RouteExecutions
+        // TODO For a consumer, get the Routes of Interest, get the RouteExecution from there
+        Extent<RouteExecution> routeExecutions = pm.getExtent(RouteExecution.class);
+        if (routeExecutions == null) {
+            return new ArrayList<>();
+        }
 
-        return null;
+        List<String> listRouteExecutions = new ArrayList<>();
+        for (RouteExecution routeExecution : routeExecutions) {
+        	listRouteExecutions.add(routeExecution.getId());
+        }
+
+        return listRouteExecutions;
     }
 
 }
