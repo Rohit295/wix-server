@@ -2,7 +2,9 @@ package com.wix.server.web.user;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Logger;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -12,7 +14,6 @@ import com.google.appengine.api.channel.ChannelServiceFactory;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.wix.common.model.LocationDTO;
-import com.wix.common.model.RouteExecutionDTO;
 import com.wix.server.manager.RouteExecutionManager;
 import com.wix.server.persistence.RouteExecutionLocation;
 
@@ -32,6 +33,10 @@ public class UserPagesController {
 	
 	private static String MAP_ROADS_URL = "https://roads.googleapis.com/v1/snapToRoads?parameters&key=AIzaSyBhsW91k1kk72HSr4Qqk-LxhJHfHF7IYdA";
 	
+	@Autowired
+	private RouteExecutionManager routeExecutionManager;
+
+    private static final Logger log = Logger.getLogger(RouteExecutionManager.class.getName());
 
     @RequestMapping("/user/console")
     public ModelAndView getUserConsole() {
@@ -65,7 +70,6 @@ public class UserPagesController {
      * @return
      */
     private List<String> getRoutesExecutionsOfInterest(String consumerID) {
-    	RouteExecutionManager routeExecutionManager = new RouteExecutionManager();
     	List<String> listOfRouteExecutions = routeExecutionManager.getRouteExecutionsForConsumer(consumerID);
     	
     	return listOfRouteExecutions;

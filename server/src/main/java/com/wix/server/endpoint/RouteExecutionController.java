@@ -64,8 +64,8 @@ public class RouteExecutionController {
     @RequestMapping(value = "routeexecutions/{routeExecutionId}/addListener", method = RequestMethod.POST)
     public void addRouteExecutionListener(@RequestHeader("userId") String userId,
                                            @PathVariable("routeExecutionId") String routeExecutionId,
-                                           @RequestParam String listenerChannel) {
-        routeExecutionManager.manageRouteExecutionListener(userId, routeExecutionId, listenerChannel, "add");
+                                           @RequestParam String consumerToken) {
+        routeExecutionManager.manageRouteExecutionListener(userId, routeExecutionId, consumerToken, "add");
     }
 
     /**
@@ -78,8 +78,8 @@ public class RouteExecutionController {
     @RequestMapping(value = "routeexecutions/{routeExecutionId}/removeListener", method = RequestMethod.POST)
     public void removeRouteExecutionListener(@RequestHeader("userId") String userId,
                                            @PathVariable("routeExecutionId") String routeExecutionId,
-                                           @RequestParam String listenerChannel) {
-        routeExecutionManager.manageRouteExecutionListener(userId, routeExecutionId, listenerChannel, "remove");
+                                           @RequestParam String consumerToken) {
+        routeExecutionManager.manageRouteExecutionListener(userId, routeExecutionId, consumerToken, "remove");
     }
 
 

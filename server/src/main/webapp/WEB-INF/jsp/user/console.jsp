@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
 <%@ include file="/WEB-INF/jsp/include.jsp"%>
 
 <html style="min-width:1360px;">
@@ -12,7 +13,8 @@
 	   	<script type="text/javascript"
 			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBhsW91k1kk72HSr4Qqk-LxhJHfHF7IYdA">
 		</script> <!-- TODO: replace the Key with the correct Key when ready -->
-	   	<script type="text/javascript" src="/js/UserConsoleChannel.js"></script>
+	   	<script type="text/javascript" src="/js/urls.js"></script>
+
 		<script type="text/javascript">
 			function initialize() {
 				var mapOptions = {
@@ -25,9 +27,16 @@
 			
 			// Load the Channel Id from here
 			var channel;
-			channel = goog.appengine.channel("${channelID}");
-
+			channel = new goog.appengine.Channel("${channelID}");
+			
+			// store the RouteExecution IDs as a global list
+			var listOfRouteExecution = new Array("${fn:length(RouteExecutions)}");
+			<c:forEach items="${RouteExecutions}" var="aRouteExecution" varStatus="routesCounter">
+				listOfRouteExecution["${routesCounter.index}"] = "${aRouteExecution}"
+			</c:forEach>
+				
 		</script>
+	   	<script type="text/javascript" src="/js/UserConsoleChannel.js"></script>
  
 	</head>
 	<body>

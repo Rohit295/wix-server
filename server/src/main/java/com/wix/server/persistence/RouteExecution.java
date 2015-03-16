@@ -26,7 +26,8 @@ public class RouteExecution {
     @Persistent(serialized = "true")
     private List<RouteExecutionLocation> routeExecutionLocations;
 
-    // List of Channels that are currently interested in this RouteExecution
+    // List of Consumers that are currently interested in this RouteExecution
+    // TODO - this is not really channel and instead a ConsumerToken that we are updating
     @Persistent(serialized = "true")
     private ArrayList<String> channelsToUpdate;
 
