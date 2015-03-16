@@ -12,11 +12,11 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import javax.jdo.Extent;
 import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
 
 /**
  * Created by racastur on 05-03-2015.
@@ -72,7 +72,7 @@ public class RouteExecutionManager {
     /**
      * This method updates every location update that is sent back for every route execution. Since at any time a consumer could be listening
      * for any location updates, check for listeners and update them
-     * 
+     *
      * @param userId
      * @param routeExecutionId
      * @param routeExecutionLocationDTO
@@ -98,15 +98,14 @@ public class RouteExecutionManager {
             }
             routeExecution.getRouteExecutionLocations().add(routeExecutionLocation);
             pm.makePersistent(routeExecution);
-            
+
             // At this point the location has been updated here, see if there are any listeners for this RouteExecution and update them
-        	List<String> listOfConsumers = routeExecution.getChannelsToUpdate();
+            List<String> listOfConsumers = routeExecution.getChannelsToUpdate();
             if (listOfConsumers != null) {
-            	for (String consumerToken : listOfConsumers) {
-            		pushRouteExecutionLocations(routeExecutionId, consumerToken);
-            	}
+                for (String consumerToken : listOfConsumers) {
+                    pushRouteExecutionLocations(routeExecutionId, consumerToken);
+                }
             }
-            
 
         } catch (Exception e) {
             // TODO
@@ -127,16 +126,17 @@ public class RouteExecutionManager {
      *
      * @param userId
      * @param routeExecutionId
-     * @param listenerChannel
      */
     public void manageRouteExecutionListener(String userId, String routeExecutionId, String consumerToken, String action) {
-    	log.info("About to "+ action + " a listener for route: " + routeExecutionId + ", for User: " + userId);
+
+        log.info("About to " + action + " a listener for route: " + routeExecutionId + ", for User: " + userId);
 
         if (!StringUtils.hasText(routeExecutionId) || consumerToken == null) {
             throw new IllegalArgumentException("routeExecutionId and ConsumerToken that wants to listen are required");
         }
-        if ( (action.compareTo("add") != 0) && (action.compareTo("remove") != 0) ){
-            throw new IllegalArgumentException("Action to perform with consumerToken should be add/remove");        	
+
+        if ((action.compareTo("add") != 0) && (action.compareTo("remove") != 0)) {
+            throw new IllegalArgumentException("Action to perform with consumerToken should be add/remove");
         }
 
         PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -147,17 +147,16 @@ public class RouteExecutionManager {
                 throw new IllegalArgumentException("Unknown Route Execution ID: " + routeExecutionId);
             }
             if (routeExecution.getChannelsToUpdate() == null) {
-            	routeExecution.setChannelsToUpdate(new ArrayList<String>(5));
+                routeExecution.setChannelsToUpdate(new ArrayList<String>(5));
             }
 
             if (action.compareTo("add") == 0) {
-            	routeExecution.addChannelToUpdate(consumerToken);
-            	log.info("Added "+ consumerToken + " as a listener for route: " + routeExecutionId);
-            	pushRouteExecutionLocations(routeExecutionId, consumerToken);	
-            }
-            else if (action.compareTo("remove") == 0) {
+                routeExecution.addChannelToUpdate(consumerToken);
+                log.info("Added " + consumerToken + " as a listener for route: " + routeExecutionId);
+                pushRouteExecutionLocations(routeExecutionId, consumerToken);
+            } else if (action.compareTo("remove") == 0) {
                 routeExecution.removeChannelFromUpdate(consumerToken);
-                log.info("Removed "+ consumerToken + " as listener from route: " + routeExecutionId);
+                log.info("Removed " + consumerToken + " as listener from route: " + routeExecutionId);
             }
 
             pm.makePersistent(routeExecution);
@@ -172,31 +171,32 @@ public class RouteExecutionManager {
                 // ignore
             }
         }
+
     }
 
     /**
      * Use this to push List of Locations for a specific route execution, to a specific consumer
-     * 
+     *
      * @param routeExecutionId
      * @param consumerToken
      */
     private void pushRouteExecutionLocations(String routeExecutionId, String consumerToken) {
-    	log.info("Preparing to push locations for route execution: " + routeExecutionId + " to consumer: " + consumerToken);
-    	ChannelService channelService = ChannelServiceFactory.getChannelService();
-    	channelService.sendMessage(new ChannelMessage(consumerToken, getLocationsOnARouteExecution(routeExecutionId)));
-    	log.info("Pushed out locations for route execution: " + routeExecutionId + " to consumer: " + consumerToken);
+        log.info("Preparing to push locations for route execution: " + routeExecutionId + " to consumer: " + consumerToken);
+        ChannelService channelService = ChannelServiceFactory.getChannelService();
+        channelService.sendMessage(new ChannelMessage(consumerToken, getLocationsOnARouteExecution(routeExecutionId)));
+        log.info("Pushed out locations for route execution: " + routeExecutionId + " to consumer: " + consumerToken);
     }
-    
+
     /**
      * for a specific route Execution ID, return the Lat, Long as a formatted string. This is normally for use in the
      * client that is listening to a route and wants to paint in real time
-     * 
+     *
      * @param routeExecutionId
      * @return
      */
     private String getLocationsOnARouteExecution(String routeExecutionId) {
-    	log.info("About to generate locations list");
-    	PersistenceManager pm = PMF.get().getPersistenceManager();
+        log.info("About to generate locations list");
+        PersistenceManager pm = PMF.get().getPersistenceManager();
         String msgLatLong = "";
         try {
 
@@ -209,10 +209,10 @@ public class RouteExecutionManager {
             // Get all the Locations on the RouteExecution and return them. Maybe there are no locations stored just now
             // in which case there is nothing really to return
             List<RouteExecutionLocation> listLocations = routeExecution.getRouteExecutionLocations();
-            if (listLocations == null) 
-            	return msgLatLong;
+            if (listLocations == null)
+                return msgLatLong;
             for (RouteExecutionLocation location : listLocations) {
-            	msgLatLong = location.getLocation().getLatitude() + ":" + location.getLocation().getLongitude() + "|";
+                msgLatLong = location.getLocation().getLatitude() + ":" + location.getLocation().getLongitude() + "|";
             }
 
         } catch (Exception e) {
@@ -226,11 +226,12 @@ public class RouteExecutionManager {
                 // ignore
             }
         }
-    	return msgLatLong;
+        return msgLatLong;
     }
-    
+
     public List<RouteExecutionDTO> getAssignedRouteExecutions(String userId) {
-    	// TODO this method name should match similar method to get Routes for a specific consumer
+
+        // TODO this method name should match similar method to get Routes for a specific consumer
 
         if (!StringUtils.hasText(userId)) {
             throw new IllegalArgumentException("userId is required");
@@ -271,20 +272,59 @@ public class RouteExecutionManager {
 
     }
 
-    /**
-     * Get the route execution details for a specific route execution
-     *
-     * @param routeExecutionID
-     * @return
-     */
-    public RouteExecutionDTO getRouteExecutionByID(String routeExecutionID) {
-        if (!StringUtils.hasText(routeExecutionID)) {
-            throw new IllegalArgumentException("route execution id is required");
+    public List<RouteExecutionDTO> getRouteExecutions(String routeId) {
+
+        if (!StringUtils.hasText(routeId)) {
+            throw new IllegalArgumentException("route id is required");
         }
 
         PersistenceManager pm = PMF.get().getPersistenceManager();
-        RouteExecution routeExecution = pm.getObjectById(RouteExecution.class, routeExecutionID);
+
+        Query q = pm.newQuery(RouteExecution.class);
+        q.setFilter("routeId == routeIdParam");
+        q.declareParameters("String routeIdParam");
+
+        try {
+
+            List<RouteExecution> results = (List<RouteExecution>) q.execute(routeId);
+            if (results == null || results.isEmpty() || results.size() > 1) {
+                return new ArrayList<>();
+            }
+
+            List<RouteExecutionDTO> dtos = new ArrayList<>();
+            for (RouteExecution routeExecution : results) {
+                dtos.add(routeExecution.getDTO());
+            }
+
+            return dtos;
+
+        } finally {
+            q.closeAll();
+        }
+
+    }
+
+    /**
+     * Get the route execution details for a specific route execution
+     *
+     * @param routeExecutionId
+     * @return
+     */
+    public RouteExecutionDTO getRouteExecutionById(String routeExecutionId) {
+
+        if (!StringUtils.hasText(routeExecutionId)) {
+            return null;
+        }
+
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+
+        RouteExecution routeExecution = pm.getObjectById(RouteExecution.class, routeExecutionId);
+        if (routeExecution == null) {
+            return null;
+        }
+
         return routeExecution.getDTO();
+
     }
 
     /**
@@ -304,7 +344,7 @@ public class RouteExecutionManager {
 
         List<String> listRouteExecutions = new ArrayList<>();
         for (RouteExecution routeExecution : routeExecutions) {
-        	listRouteExecutions.add(routeExecution.getId());
+            listRouteExecutions.add(routeExecution.getId());
         }
 
         return listRouteExecutions;

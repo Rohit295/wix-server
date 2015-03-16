@@ -2,6 +2,7 @@ package com.wix.server.persistence;
 
 import com.wix.common.model.UserDTO;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import javax.jdo.annotations.PersistenceCapable;
@@ -12,7 +13,7 @@ import javax.jdo.annotations.PrimaryKey;
  * Created by racastur on 31-10-2014.
  */
 @PersistenceCapable
-public class User {
+public class User implements Serializable {
 
     @PrimaryKey
     @Persistent
@@ -28,10 +29,25 @@ public class User {
     private String userName;
 
     @Persistent
+    private String password;
+
+    @Persistent
     private String emailId;
 
     @Persistent
     private boolean adminRole;
+
+    @Persistent
+    private long createdAtTimestamp;
+
+    @Persistent
+    private String createdByUserId;
+
+    @Persistent
+    private long lastUpdatedAtTimestamp;
+
+    @Persistent
+    private String lastUpdatedByUserId;
 
     public User() {
         setId(UUID.randomUUID().toString());
@@ -81,6 +97,14 @@ public class User {
         this.userName = userName;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public String getEmailId() {
         return emailId;
     }
@@ -95,6 +119,38 @@ public class User {
 
     public void setAdminRole(boolean adminRole) {
         this.adminRole = adminRole;
+    }
+
+    public long getCreatedAtTimestamp() {
+        return createdAtTimestamp;
+    }
+
+    public void setCreatedAtTimestamp(long createdAtTimestamp) {
+        this.createdAtTimestamp = createdAtTimestamp;
+    }
+
+    public String getCreatedByUserId() {
+        return createdByUserId;
+    }
+
+    public void setCreatedByUserId(String createdByUserId) {
+        this.createdByUserId = createdByUserId;
+    }
+
+    public long getLastUpdatedAtTimestamp() {
+        return lastUpdatedAtTimestamp;
+    }
+
+    public void setLastUpdatedAtTimestamp(long lastUpdatedAtTimestamp) {
+        this.lastUpdatedAtTimestamp = lastUpdatedAtTimestamp;
+    }
+
+    public String getLastUpdatedByUserId() {
+        return lastUpdatedByUserId;
+    }
+
+    public void setLastUpdatedByUserId(String lastUpdatedByUserId) {
+        this.lastUpdatedByUserId = lastUpdatedByUserId;
     }
 
     public UserDTO getDTO() {

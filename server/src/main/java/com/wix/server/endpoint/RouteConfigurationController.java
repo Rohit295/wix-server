@@ -2,6 +2,9 @@ package com.wix.server.endpoint;
 
 import com.wix.common.model.RouteDTO;
 import com.wix.common.model.RouteExecutionDTO;
+import com.wix.server.exception.DuplicateEntityException;
+import com.wix.server.exception.UnknownEntityException;
+import com.wix.server.exception.ValidationException;
 import com.wix.server.manager.RouteConfigurationManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,14 +27,32 @@ public class RouteConfigurationController {
 
     @RequestMapping(value = "routes", method = RequestMethod.POST)
     public RouteDTO createNewRoute(@RequestBody RouteDTO routeDTO) {
-        return routeConfigurationManager.createUpdateRoute(routeDTO);
+        try {
+            return routeConfigurationManager.createUpdateRoute(routeDTO);
+        } catch (ValidationException e) {
+            throw new RuntimeException(e);
+        } catch (UnknownEntityException e) {
+            throw new RuntimeException(e);
+        } catch (DuplicateEntityException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @RequestMapping(value = "routes/{routeId}/executions", method = RequestMethod.POST)
     public RouteExecutionDTO assignRouteExecution(@PathVariable("routeId") String routeId,
                                                   @RequestParam("userId") String userId,
                                                   @RequestParam("deviceId") String deviceId) {
-        return routeConfigurationManager.assignRouteExecution(routeId, userId, deviceId);
+        try {
+            return routeConfigurationManager.assignRouteExecution(routeId, userId, deviceId);
+        } catch (ValidationException e) {
+            throw new RuntimeException(e);
+        } catch (UnknownEntityException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @RequestMapping(value = "routes", method = RequestMethod.GET)

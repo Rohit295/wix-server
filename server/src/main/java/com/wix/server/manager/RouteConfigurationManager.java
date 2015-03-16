@@ -6,7 +6,11 @@ import java.util.logging.Logger;
 
 import javax.jdo.Extent;
 import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
 
+import com.wix.server.exception.DuplicateEntityException;
+import com.wix.server.exception.UnknownEntityException;
+import com.wix.server.exception.ValidationException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -25,11 +29,11 @@ public class RouteConfigurationManager {
 
     private static final Logger log = Logger.getLogger(RouteConfigurationManager.class.getName());
 
-    public RouteDTO createUpdateRoute(RouteDTO routeDTO) {
+    public RouteDTO createUpdateRoute(RouteDTO routeDTO) throws ValidationException, UnknownEntityException, DuplicateEntityException {
 
-        if (routeDTO == null) {
+        if (routeDTO == null || !StringUtils.hasText(routeDTO.getName())) {
             // throw validation exception
-            throw new IllegalArgumentException("route is required");
+            throw new ValidationException("invalid route data");
         }
 
         PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -43,10 +47,13 @@ public class RouteConfigurationManager {
 
                 route = pm.getObjectById(Route.class, routeDTO.getId());
                 if (route == null) {
-                    throw new IllegalArgumentException("Unknown route");
+                    throw new UnknownEntityException("Unknown route");
                 }
 
-                // TODO check if the route re-naming clashes with a different route's name
+                Route routeBySameName = getRouteByName(routeDTO.getName());
+                if (routeBySameName != null && !routeBySameName.getId().equals(route.getId())) {
+                    throw new DuplicateEntityException("another route with given name already exists");
+                }
 
                 route.setName(routeDTO.getName());
                 route.setOrganizationId(routeDTO.getOrganizationId());
@@ -55,8 +62,16 @@ public class RouteConfigurationManager {
                 //route.setRouteLocations(routeDTO.getRouteLocations());
 
             } else {
+
                 newRoute = true;
+
+                route = getRouteByName(routeDTO.getName());
+                if (route != null) {
+                    throw new DuplicateEntityException("route with given name already exists");
+                }
+
                 route = new Route(routeDTO);
+
             }
 
             if (newRoute) {
@@ -65,10 +80,6 @@ public class RouteConfigurationManager {
 
             return route.getDTO();
 
-        } catch (Exception e) {
-            // TODO
-            e.printStackTrace();
-            throw new RuntimeException("Unknown error");
         } finally {
             try {
                 pm.close();
@@ -79,11 +90,11 @@ public class RouteConfigurationManager {
 
     }
 
-    public RouteExecutionDTO assignRouteExecution(String routeId, String userId, String deviceId) {
+    public RouteExecutionDTO assignRouteExecution(String routeId, String userId, String deviceId) throws ValidationException, UnknownEntityException {
 
         if (!StringUtils.hasText(routeId) || !StringUtils.hasText(userId) || !StringUtils.hasText(deviceId)) {
             // throw validation exception
-            throw new IllegalArgumentException("routeId, userId, deviceId are required");
+            throw new ValidationException("routeId, userId, deviceId are required");
         }
 
         PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -91,7 +102,7 @@ public class RouteConfigurationManager {
 
             Route route = pm.getObjectById(Route.class, routeId);
             if (route == null) {
-                throw new IllegalArgumentException("Unknown route");
+                throw new UnknownEntityException("Unknown route");
             }
 
             RouteExecution routeExecution = new RouteExecution();
@@ -108,10 +119,6 @@ public class RouteConfigurationManager {
 
             return routeExecution.getDTO();
 
-        } catch (Exception e) {
-            // TODO
-            e.printStackTrace();
-            throw new RuntimeException("Unknown error");
         } finally {
             try {
                 pm.close();
@@ -143,17 +150,40 @@ public class RouteConfigurationManager {
     public RouteDTO getRoute(String routeId, boolean includeRouteStops) {
 
         if (!StringUtils.hasText(routeId)) {
-            throw new IllegalArgumentException("route id is required");
+            return null;
         }
 
         PersistenceManager pm = PMF.get().getPersistenceManager();
 
         Route route = pm.getObjectById(Route.class, routeId);
         if (route == null) {
-            throw new IllegalArgumentException("Unknown route");
+            return null;
         }
 
         return route.getDTO();
+
+    }
+
+    public Route getRouteByName(String name) {
+
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+
+        Query q = pm.newQuery(Route.class);
+        q.setFilter("name == nameParam");
+        q.declareParameters("String nameParam");
+
+        try {
+
+            List<Route> results = (List<Route>) q.execute(name);
+            if (results == null || results.isEmpty() || results.size() > 1) {
+                return null;
+            }
+
+            return results.get(0);
+
+        } finally {
+            q.closeAll();
+        }
 
     }
 

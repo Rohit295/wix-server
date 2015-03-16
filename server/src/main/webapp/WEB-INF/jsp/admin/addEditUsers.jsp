@@ -43,22 +43,20 @@
                                     <td class="form-entry-value"><form:input tabindex="1" path="name" /></td>
                                 </tr>
                                 <tr>
-                                </tr>
-                                <tr>
                                     <td class="form-entry-key">Username:</td>
                                     <td class="form-entry-value"><form:input tabindex="2" path="userName" /></td>
                                 </tr>
                                 <tr>
+                                    <td class="form-entry-key">Password:</td>
+                                    <td class="form-entry-value"><form:input tabindex="3" path="password" type="password"/></td>
                                 </tr>
                                 <tr>
                                     <td class="form-entry-key">Email:</td>
-                                    <td class="form-entry-value"><form:input tabindex="3" path="emailId" /></td>
-                                </tr>
-                                <tr>
+                                    <td class="form-entry-value"><form:input tabindex="4" path="emailId" /></td>
                                 </tr>
                                 <tr>
                                     <td class="form-entry-key">Admin Role:</td>
-                                    <td class="form-entry-value"><form:checkbox tabindex="4" path="adminRole" /></td>
+                                    <td class="form-entry-value"><form:checkbox tabindex="5" path="adminRole" /></td>
                                 </tr>
                             </table>
                         </td>
