@@ -96,7 +96,11 @@ public class RouteExecutionManager {
             if (routeExecution.getRouteExecutionLocations() == null) {
                 routeExecution.setRouteExecutionLocations(new ArrayList<RouteExecutionLocation>());
             }
-            routeExecution.getRouteExecutionLocations().add(routeExecutionLocation);
+            log.info("About to add location: " +
+                    routeExecutionLocationDTO.getLocation().getLatitude() + "|" + routeExecutionLocationDTO.getLocation().getLatitude() +
+                    " to route Execution: " + routeExecutionId);
+            log.info("postRouteExecutionLocation - Current Locations count: " + routeExecution.getRouteExecutionLocations().size());
+                    routeExecution.getRouteExecutionLocations().add(routeExecutionLocation);
             pm.makePersistent(routeExecution);
 
             // At this point the location has been updated here, see if there are any listeners for this RouteExecution and update them
@@ -181,10 +185,10 @@ public class RouteExecutionManager {
      * @param consumerToken
      */
     private void pushRouteExecutionLocations(String routeExecutionId, String consumerToken) {
-        log.info("Preparing to push locations for route execution: " + routeExecutionId + " to consumer: " + consumerToken);
+        //log.info("Preparing to push locations for route execution: " + routeExecutionId + " to consumer: " + consumerToken);
         ChannelService channelService = ChannelServiceFactory.getChannelService();
         channelService.sendMessage(new ChannelMessage(consumerToken, getLocationsOnARouteExecution(routeExecutionId)));
-        log.info("Pushed out locations for route execution: " + routeExecutionId + " to consumer: " + consumerToken);
+        log.info("Pushed out current locations for route execution: " + routeExecutionId + " to consumer: " + consumerToken);
     }
 
     /**
@@ -212,7 +216,7 @@ public class RouteExecutionManager {
             if (listLocations == null)
                 return msgLatLong;
             for (RouteExecutionLocation location : listLocations) {
-                msgLatLong = location.getLocation().getLatitude() + ":" + location.getLocation().getLongitude() + "|";
+                msgLatLong += location.getLocation().getLatitude() + ":" + location.getLocation().getLongitude() + "|";
             }
 
         } catch (Exception e) {
