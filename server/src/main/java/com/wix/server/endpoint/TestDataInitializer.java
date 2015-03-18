@@ -2,6 +2,7 @@ package com.wix.server.endpoint;
 
 import com.wix.common.model.*;
 import com.wix.server.manager.RouteConfigurationManager;
+import com.wix.server.manager.RouteExecutionManager;
 import com.wix.server.manager.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,9 @@ public class TestDataInitializer {
 
     @Autowired
     private RouteConfigurationManager routeConfigurationManager;
+
+    @Autowired
+    private RouteExecutionManager routeExecutionManager;
 
     private String ramaUserId;
     private String rohitUserId;
@@ -168,7 +172,74 @@ public class TestDataInitializer {
             route1 = routeConfigurationManager.createUpdateRoute(route1);
 
             try {
-                routeConfigurationManager.assignRouteExecution(route1.getId(), ramaUserId, "device1");
+
+                RouteExecutionDTO routeExecutionDTO = routeConfigurationManager.assignRouteExecution(route1.getId(), ramaUserId, "device1");
+                RouteExecutionDTO routeExecutionDTO1 = routeConfigurationManager.assignRouteExecution(route1.getId(), rohitUserId, "deviceA");
+
+                try {
+
+                    routeExecutionManager.updateRouteExecutionStatus(ramaUserId, routeExecutionDTO.getId(), RouteExecutionStatus.Started);
+
+                    LocationDTO loc = new LocationDTO();
+                    loc.setLatitude(17.432483);
+                    loc.setLongitude(78.362863);
+                    loc.setAddress("Urdu University Rd, Telecom Nagar, Hyderabad, Telangana 500032");
+
+                    RouteExecutionStopDTO res = new RouteExecutionStopDTO();
+                    res.setRouteStopId(route1.getRouteLocations().get(0).getId());
+
+                    RouteExecutionLocationDTO rel = new RouteExecutionLocationDTO();
+                    rel.setLocation(loc);
+                    rel.setRouteExecutionStop(res);
+
+                    routeExecutionManager.postRouteExecutionLocation(ramaUserId, routeExecutionDTO.getId(), rel);
+
+                    loc = new LocationDTO();
+                    loc.setLatitude(17.432299);
+                    loc.setLongitude(78.363963);
+                    loc.setAddress("1 Urdu University Rd, Sri Shyam Nagar, Telecom Nagar, Gachibowli, Hyderabad, Telangana 500032");
+
+                    rel = new RouteExecutionLocationDTO();
+                    rel.setLocation(loc);
+
+                    routeExecutionManager.postRouteExecutionLocation(ramaUserId, routeExecutionDTO.getId(), rel);
+
+                    loc = new LocationDTO();
+                    loc.setLatitude(17.433378);
+                    loc.setLongitude(78.364655);
+                    loc.setAddress("2 Urdu University Rd, Sri Shyam Nagar, Telecom Nagar, Gachibowli, Hyderabad, Telangana 500032");
+
+                    rel = new RouteExecutionLocationDTO();
+                    rel.setLocation(loc);
+
+                    routeExecutionManager.postRouteExecutionLocation(ramaUserId, routeExecutionDTO.getId(), rel);
+
+                    loc = new LocationDTO();
+                    loc.setLatitude(17.435010);
+                    loc.setLongitude(78.365771);
+                    loc.setAddress("3 Urdu University Rd, Sri Shyam Nagar, Telecom Nagar, Gachibowli, Hyderabad, Telangana 500032");
+
+                    rel = new RouteExecutionLocationDTO();
+                    rel.setLocation(loc);
+
+                    routeExecutionManager.postRouteExecutionLocation(ramaUserId, routeExecutionDTO.getId(), rel);
+
+                    loc = new LocationDTO();
+                    loc.setLatitude(17.437316);
+                    loc.setLongitude(78.365190);
+                    loc.setAddress("Next to flyover, Gachibowli, Hyderabad, Telangana 500032");
+
+                    rel = new RouteExecutionLocationDTO();
+                    rel.setLocation(loc);
+
+                    routeExecutionManager.postRouteExecutionLocation(ramaUserId, routeExecutionDTO.getId(), rel);
+
+                    routeExecutionManager.updateRouteExecutionStatus(rohitUserId, routeExecutionDTO1.getId(), RouteExecutionStatus.Started);
+
+                } catch (Exception e) {
+                    log.log(Level.WARNING, "Error updating route execution status [" + e.getMessage() + "]", e);
+                }
+
             } catch (Exception e) {
                 log.log(Level.WARNING, "Error assigning route [" + e.getMessage() + "]", e);
             }

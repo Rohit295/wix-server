@@ -287,7 +287,7 @@ public class RouteExecutionManager {
         try {
 
             List<RouteExecution> results = (List<RouteExecution>) q.execute(routeId);
-            if (results == null || results.isEmpty() || results.size() > 1) {
+            if (results == null || results.isEmpty()) {
                 return new ArrayList<>();
             }
 

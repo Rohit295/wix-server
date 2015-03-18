@@ -17,6 +17,10 @@ public class UserDetails implements org.springframework.security.core.userdetail
         this.user = user;
     }
 
+    public User getUser() {
+        return user;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> roles = new ArrayList<>();
