@@ -17,7 +17,7 @@
 
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="/admin/profile">CHIREC</a></li>
+        <li><a href="/admin/profile">${userInfo.name}</a></li>
         <!--  li><a href="javascript:$.post('/logout');">Logout</a></li-->
         <li><a href="<c:url value="/logout" />">Logout</a></li>
       </ul>

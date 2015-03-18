@@ -3,20 +3,20 @@ package com.wix.common.model;
 /**
  * Created by racastur on 12-11-2014.
  */
-public class RouteExecutionStopDTO extends RouteExecutionLocationDTO {
+public class RouteExecutionStopDTO {
 
-	private String routeStopId;
+    private String routeStopId;
 
-	public RouteExecutionStopDTO() {
+    public RouteExecutionStopDTO() {
 
-	}
+    }
 
-	public String getRouteStopId() {
-		return routeStopId;
-	}
+    public String getRouteStopId() {
+        return routeStopId;
+    }
 
-	public void setRouteStopId(String routeStopId) {
-		this.routeStopId = routeStopId;
-	}
+    public void setRouteStopId(String routeStopId) {
+        this.routeStopId = routeStopId;
+    }
 
 }

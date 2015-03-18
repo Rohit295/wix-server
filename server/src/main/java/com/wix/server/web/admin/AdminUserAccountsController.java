@@ -2,7 +2,9 @@ package com.wix.server.web.admin;
 
 import com.wix.common.model.UserDTO;
 import com.wix.server.manager.UserManager;
+import com.wix.server.persistence.UserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +35,7 @@ public class AdminUserAccountsController {
         Map<String, Object> model = new HashMap<>();
         model.put("activeTab", "users");
         model.put("accounts", userManager.getUsers());
+        model.put("userInfo", ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser());
 
         return new ModelAndView("admin/users", model);
 
@@ -46,6 +49,7 @@ public class AdminUserAccountsController {
         Map<String, Object> model = new HashMap<>();
         model.put("activeTab", "users");
         model.put("account", userManager.getUser(userId));
+        model.put("userInfo", ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser());
 
         return new ModelAndView("admin/addeditusers", model);
 
@@ -59,6 +63,7 @@ public class AdminUserAccountsController {
         Map<String, Object> model = new HashMap<>();
         model.put("activeTab", "users");
         model.put("account", new UserDTO());
+        model.put("userInfo", ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser());
 
         return new ModelAndView("admin/addeditusers", model);
 
