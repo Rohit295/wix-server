@@ -16,12 +16,13 @@
 	   	<script type="text/javascript" src="/js/urls.js"></script>
 
 		<script type="text/javascript">
+			var mapForConsole;
 			function initialize() {
 				var mapOptions = {
-				  center: { lat: -34.397, lng: 150.644},
+				  center: { lat: 17.4324341, lng: 78.3612987},
 				  zoom: 8
 				};
-			  	var map = new google.maps.Map(document.getElementById('UCMapCanvas'), mapOptions);
+			  	var mapForConsole = new google.maps.Map(document.getElementById('UCMapCanvas'), mapOptions);
 			}
 			google.maps.event.addDomListener(window, 'load', initialize);
 			
@@ -34,6 +35,11 @@
 			<c:forEach items="${RouteExecutions}" var="aRouteExecution" varStatus="routesCounter">
 				listOfRouteExecution["${routesCounter.index}"] = "${aRouteExecution}"
 			</c:forEach>
+				
+			// store the locations for each Route Execution. This is an array that contains as many
+			// elements as routes, this user could be interested in. Remember that the list of locations
+			// itself is an array
+			var listOfRoutePolyLines = new Array(listOfRouteExecution.length);
 				
 		</script>
 	   	<script type="text/javascript" src="/js/UserConsoleChannel.js"></script>

@@ -42,18 +42,37 @@ function sendRouteToTrack(routeID) {
 /**
  * Main Business method. Every time this method is called, it means that the server is pushing some data for the client to
  * consume. It can be one of
- * (a) route location stops for a specific asset
+ * (a) first time list of route location stops for a specific asset
+ * (b) incremental data for the specific route that is already being tracked
  * 
  * @param locationMessage
  * @returns
  */
 function socket_onMessage(message) {
 	var listCoordinates = message.data;
+	firstLoadOfRouteExecution(listCoordinates);
+}
 
+function firstLoadOfRouteExecution(listCoordinates) {
 	// If there is something returned, then it will be for format lat1:lng1|lat2:lng2 and so on. Split the string based on the
 	// | separator and pull out the lat and longs
 	var listLatLong = listCoordinates.split("|");
+	var index;
+	var listMapPathPoints = new Array(listLatLong.length);
+	for (index = 0; index < listLatLong.length; index++) {
+		var latlong = listLatLong[index].split(":");
+		listMapPathPoints[index] = new google.maps.LatLng(latlong[0], latlong[1]);
+	}
 	
+	// At this point, create the polyline to add to the map
+	listOfRoutePolyLines[0] = new google.maps.Polyline({
+	    path: listMapPathPoints,
+	    geodesic: true,
+	    strokeColor: '#FF0000',
+	    strokeOpacity: 1.0,
+	    strokeWeight: 2
+	  });
+	listOfRoutePolyLines[0].setMap(mapForConsole);
 }
 
 
