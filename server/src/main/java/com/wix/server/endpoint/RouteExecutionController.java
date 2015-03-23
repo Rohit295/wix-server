@@ -33,54 +33,78 @@ public class RouteExecutionController {
     public RouteExecutionDTO updateRouteExecutionStatus(@RequestHeader("userId") String userId,
                                                         @PathVariable("routeExecutionId") String routeExecutionId,
                                                         @RequestParam("executionStatus") RouteExecutionStatus routeExecutionStatus) {
-        return routeExecutionManager.updateRouteExecutionStatus(userId, routeExecutionId, routeExecutionStatus);
+        try {
+            return routeExecutionManager.updateRouteExecutionStatus(userId, routeExecutionId, routeExecutionStatus);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @RequestMapping(value = "routeexecutions/{routeExecutionId}/location", method = RequestMethod.POST)
     public void postRouteExecutionLocation(@RequestHeader("userId") String userId,
                                            @PathVariable("routeExecutionId") String routeExecutionId,
                                            @RequestBody RouteExecutionLocationDTO routeExecutionLocationDTO) {
-        routeExecutionManager.postRouteExecutionLocation(userId, routeExecutionId, routeExecutionLocationDTO);
+        try {
+            routeExecutionManager.postRouteExecutionLocation(userId, routeExecutionId, routeExecutionLocationDTO);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @RequestMapping(value = "routeexecutions", method = RequestMethod.GET)
     public List<RouteExecutionDTO> getAssignedRouteExecutions(@RequestHeader("userId") String userId) {
-        return routeExecutionManager.getAssignedRouteExecutions(userId);
+        try {
+            return routeExecutionManager.getAssignedRouteExecutions(userId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @RequestMapping(value = "routeexecutions/{routeExecutionId}", method = RequestMethod.GET)
     public RouteExecutionDTO getAssignedRouteExecution(@RequestHeader("userId") String userId,
                                                        @PathVariable("routeExecutionId") String routeExecutionId) {
-        return routeExecutionManager.getAssignedRouteExecution(userId, routeExecutionId);
+        try {
+            return routeExecutionManager.getAssignedRouteExecution(userId, routeExecutionId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
      * Whenever a new listener needs to get added to an instance of RouteExecution. Basically some observer wants to see
      * the route as it is being executed
+     *
      * @param userId
      * @param routeExecutionId
-     * @param listenerChannel
      */
     @RequestMapping(value = "routeexecutions/{routeExecutionId}/addListener", method = RequestMethod.POST)
     public void addRouteExecutionListener(@RequestHeader("userId") String userId,
-                                           @PathVariable("routeExecutionId") String routeExecutionId,
-                                           @RequestParam String consumerToken) {
-        routeExecutionManager.manageRouteExecutionListener(userId, routeExecutionId, consumerToken, "add");
+                                          @PathVariable("routeExecutionId") String routeExecutionId,
+                                          @RequestParam String consumerToken) {
+        try {
+            routeExecutionManager.manageRouteExecutionListener(userId, routeExecutionId, consumerToken, "add");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
      * Whenever a listener needs to get removed from an instance of RouteExecution. Basically some observer is done seeing
      * the route as it is being executed
+     *
      * @param userId
      * @param routeExecutionId
-     * @param listenerChannel
      */
     @RequestMapping(value = "routeexecutions/{routeExecutionId}/removeListener", method = RequestMethod.POST)
     public void removeRouteExecutionListener(@RequestHeader("userId") String userId,
-                                           @PathVariable("routeExecutionId") String routeExecutionId,
-                                           @RequestParam String consumerToken) {
-        routeExecutionManager.manageRouteExecutionListener(userId, routeExecutionId, consumerToken, "remove");
-    }
+                                             @PathVariable("routeExecutionId") String routeExecutionId,
+                                             @RequestParam String consumerToken) {
+        try {
+            routeExecutionManager.manageRouteExecutionListener(userId, routeExecutionId, consumerToken, "remove");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
+    }
 
 }

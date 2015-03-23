@@ -57,7 +57,7 @@ public class RouteConfigurationManager {
 
                 route.setName(routeDTO.getName());
                 route.setOrganizationId(routeDTO.getOrganizationId());
-                route.setDefaultStopPurpose(routeDTO.getDefaultStopPurpose());
+                route.setDefaultStopPurpose(routeDTO.getDefaultStopPurpose().name());
                 route.setExecutionStartTime(routeDTO.getExecutionStartTime());
                 //route.setRouteLocations(routeDTO.getRouteLocations());
 

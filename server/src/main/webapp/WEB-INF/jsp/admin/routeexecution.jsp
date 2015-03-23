@@ -117,12 +117,13 @@ google.maps.event.addDomListener(window, 'load', initialize);
 
 	<div align="center" class="container">
 
-        <h2>Route Execution [${route.name}]</h4>
+        <h2>Route Execution</h4>
 
 		<table class="table table-striped table-condensed table-bordered table-hover">
 			<thead>
 				<tr>
 					<th>Id</th>
+					<th>Route Name</th>
 					<th>Executing User Id</th>
 					<th>Start Time</th>
 					<th>End Time</th>
@@ -131,6 +132,7 @@ google.maps.event.addDomListener(window, 'load', initialize);
 			<tbody>
                 <tr>
                     <td align="center"><c:out value="${routeExecution.id}" /></td>
+                    <td align="center"><c:out value="${route.name}" /></td>
                     <td align="center"><c:out value="${routeExecution.routeExecutor.userId}" /></td>
                     <jsp:useBean id="startDateObject" class="java.util.Date" />
                     <jsp:setProperty name="startDateObject" property="time" value="${routeExecution.startTime}" />

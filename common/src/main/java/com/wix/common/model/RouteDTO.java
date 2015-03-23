@@ -13,7 +13,7 @@ public class RouteDTO {
 
     private String name;
 
-    private String defaultStopPurpose; // should be enum { Delivery, Pickup, Visit }
+    private StopPurpose defaultStopPurpose;
 
     private String executionStartTime; // a one time route or a scheduled route
 
@@ -47,11 +47,11 @@ public class RouteDTO {
         this.name = name;
     }
 
-    public String getDefaultStopPurpose() {
+    public StopPurpose getDefaultStopPurpose() {
         return defaultStopPurpose;
     }
 
-    public void setDefaultStopPurpose(String defaultStopPurpose) {
+    public void setDefaultStopPurpose(StopPurpose defaultStopPurpose) {
         this.defaultStopPurpose = defaultStopPurpose;
     }
 

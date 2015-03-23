@@ -27,7 +27,7 @@ public class Route {
     private String organizationId;
 
     @Persistent
-    private String defaultStopPurpose; // should be enum { Delivery, Pickup, Visit }
+    private String defaultStopPurpose = StopPurpose.Dropoff.name();
 
     @Persistent
     private String executionStartTime; // a one time route or a scheduled route
@@ -45,7 +45,7 @@ public class Route {
 
         setName(dto.getName());
         setOrganizationId(dto.getOrganizationId());
-        setDefaultStopPurpose(dto.getDefaultStopPurpose());
+        setDefaultStopPurpose(dto.getDefaultStopPurpose().name());
         setExecutionStartTime(dto.getExecutionStartTime());
 
         List<RouteLocation> routeLocations = new ArrayList<RouteLocation>();
@@ -113,7 +113,7 @@ public class Route {
         dto.setId(id);
         dto.setName(name);
         dto.setOrganizationId(organizationId);
-        dto.setDefaultStopPurpose(defaultStopPurpose);
+        dto.setDefaultStopPurpose(Enum.valueOf(StopPurpose.class, defaultStopPurpose));
         dto.setExecutionStartTime(executionStartTime);
 
         List<RouteLocationDTO> routeLocationDTOs = new ArrayList<RouteLocationDTO>();

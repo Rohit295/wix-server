@@ -4,6 +4,7 @@ import com.google.appengine.api.channel.ChannelMessage;
 import com.google.appengine.api.channel.ChannelService;
 import com.google.appengine.api.channel.ChannelServiceFactory;
 import com.wix.common.model.*;
+import com.wix.server.exception.ValidationException;
 import com.wix.server.persistence.*;
 
 import org.springframework.stereotype.Component;
@@ -26,11 +27,11 @@ public class RouteExecutionManager {
 
     private static final Logger log = Logger.getLogger(RouteExecutionManager.class.getName());
 
-    public RouteExecutionDTO updateRouteExecutionStatus(String userId, String routeExecutionId, RouteExecutionStatus routeExecutionStatus) {
+    public RouteExecutionDTO updateRouteExecutionStatus(String userId, String routeExecutionId, RouteExecutionStatus routeExecutionStatus) throws ValidationException {
 
         if (!StringUtils.hasText(routeExecutionId)) {
             // throw validation exception
-            throw new IllegalArgumentException("routeExecutionId is required");
+            throw new ValidationException("routeExecutionId is required");
         }
 
         PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -38,7 +39,7 @@ public class RouteExecutionManager {
 
             RouteExecution routeExecution = pm.getObjectById(RouteExecution.class, routeExecutionId);
             if (routeExecution == null) {
-                throw new IllegalArgumentException("Unknown route execution");
+                throw new ValidationException("Unknown route execution");
             }
 
             switch (routeExecutionStatus) {
@@ -55,10 +56,6 @@ public class RouteExecutionManager {
 
             return routeExecution.getDTO();
 
-        } catch (Exception e) {
-            // TODO
-            e.printStackTrace();
-            throw new RuntimeException("Unknown error", e);
         } finally {
             try {
                 pm.close();
@@ -77,11 +74,11 @@ public class RouteExecutionManager {
      * @param routeExecutionId
      * @param routeExecutionLocationDTO
      */
-    public void postRouteExecutionLocation(String userId, String routeExecutionId, RouteExecutionLocationDTO routeExecutionLocationDTO) {
+    public void postRouteExecutionLocation(String userId, String routeExecutionId, RouteExecutionLocationDTO routeExecutionLocationDTO) throws ValidationException {
 
         if (!StringUtils.hasText(routeExecutionId) || routeExecutionLocationDTO == null) {
             // throw validation exception
-            throw new IllegalArgumentException("routeExecutionId and dto are required");
+            throw new ValidationException("routeExecutionId and dto are required");
         }
 
         PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -89,18 +86,22 @@ public class RouteExecutionManager {
 
             RouteExecution routeExecution = pm.getObjectById(RouteExecution.class, routeExecutionId);
             if (routeExecution == null) {
-                throw new IllegalArgumentException("Unknown route execution");
+                throw new ValidationException("Unknown route execution");
             }
 
             RouteExecutionLocation routeExecutionLocation = new RouteExecutionLocation(routeExecutionId, routeExecutionLocationDTO);
             if (routeExecution.getRouteExecutionLocations() == null) {
                 routeExecution.setRouteExecutionLocations(new ArrayList<RouteExecutionLocation>());
             }
+
             log.info("About to add location: " +
                     routeExecutionLocationDTO.getLocation().getLatitude() + "|" + routeExecutionLocationDTO.getLocation().getLatitude() +
                     " to route Execution: " + routeExecutionId);
+
             log.info("postRouteExecutionLocation - Current Locations count: " + routeExecution.getRouteExecutionLocations().size());
-                    routeExecution.getRouteExecutionLocations().add(routeExecutionLocation);
+
+            routeExecution.getRouteExecutionLocations().add(routeExecutionLocation);
+
             pm.makePersistent(routeExecution);
 
             // At this point the location has been updated here, see if there are any listeners for this RouteExecution and update them
@@ -111,9 +112,6 @@ public class RouteExecutionManager {
                 }
             }
 
-        } catch (Exception e) {
-            // TODO
-            throw new RuntimeException("Unknown error", e);
         } finally {
             try {
                 pm.close();
@@ -131,16 +129,16 @@ public class RouteExecutionManager {
      * @param userId
      * @param routeExecutionId
      */
-    public void manageRouteExecutionListener(String userId, String routeExecutionId, String consumerToken, String action) {
+    public void manageRouteExecutionListener(String userId, String routeExecutionId, String consumerToken, String action) throws ValidationException {
 
         log.info("About to " + action + " a listener for route: " + routeExecutionId + ", for User: " + userId);
 
         if (!StringUtils.hasText(routeExecutionId) || consumerToken == null) {
-            throw new IllegalArgumentException("routeExecutionId and ConsumerToken that wants to listen are required");
+            throw new ValidationException("routeExecutionId and ConsumerToken that wants to listen are required");
         }
 
         if ((action.compareTo("add") != 0) && (action.compareTo("remove") != 0)) {
-            throw new IllegalArgumentException("Action to perform with consumerToken should be add/remove");
+            throw new ValidationException("Action to perform with consumerToken should be add/remove");
         }
 
         PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -150,24 +148,29 @@ public class RouteExecutionManager {
             if (routeExecution == null) {
                 throw new IllegalArgumentException("Unknown Route Execution ID: " + routeExecutionId);
             }
+
             if (routeExecution.getChannelsToUpdate() == null) {
                 routeExecution.setChannelsToUpdate(new ArrayList<String>(5));
             }
 
             if (action.compareTo("add") == 0) {
+
                 routeExecution.addChannelToUpdate(consumerToken);
+
                 log.info("Added " + consumerToken + " as a listener for route: " + routeExecutionId);
+
                 pushRouteExecutionLocations(routeExecutionId, consumerToken);
+
             } else if (action.compareTo("remove") == 0) {
+
                 routeExecution.removeChannelFromUpdate(consumerToken);
+
                 log.info("Removed " + consumerToken + " as listener from route: " + routeExecutionId);
+
             }
 
             pm.makePersistent(routeExecution);
 
-        } catch (Exception e) {
-            // TODO
-            throw new RuntimeException(getClass().getName() + " - Unknown Error: " + e.getMessage());
         } finally {
             try {
                 pm.close();
@@ -184,7 +187,7 @@ public class RouteExecutionManager {
      * @param routeExecutionId
      * @param consumerToken
      */
-    private void pushRouteExecutionLocations(String routeExecutionId, String consumerToken) {
+    private void pushRouteExecutionLocations(String routeExecutionId, String consumerToken) throws ValidationException {
         //log.info("Preparing to push locations for route execution: " + routeExecutionId + " to consumer: " + consumerToken);
         ChannelService channelService = ChannelServiceFactory.getChannelService();
         channelService.sendMessage(new ChannelMessage(consumerToken, getLocationsOnARouteExecution(routeExecutionId)));
@@ -198,7 +201,7 @@ public class RouteExecutionManager {
      * @param routeExecutionId
      * @return
      */
-    private String getLocationsOnARouteExecution(String routeExecutionId) {
+    private String getLocationsOnARouteExecution(String routeExecutionId) throws ValidationException {
         log.info("About to generate locations list");
         PersistenceManager pm = PMF.get().getPersistenceManager();
         String msgLatLong = "";
@@ -206,7 +209,7 @@ public class RouteExecutionManager {
 
             RouteExecution routeExecution = pm.getObjectById(RouteExecution.class, routeExecutionId);
             if (routeExecution == null) {
-                throw new IllegalArgumentException("Unknown Route Execution ID: " + routeExecutionId);
+                throw new ValidationException("Unknown Route Execution ID: " + routeExecutionId);
             }
 
             // TODO this should ideally be the interpolated, matched to Road list of locations
@@ -219,9 +222,6 @@ public class RouteExecutionManager {
                 msgLatLong += location.getLocation().getLatitude() + ":" + location.getLocation().getLongitude() + "|";
             }
 
-        } catch (Exception e) {
-            // TODO
-            throw new RuntimeException(getClass().getName() + " - Unknown Error: " + e.getMessage());
         } finally {
             log.info("Locations List is: " + msgLatLong);
             try {
@@ -229,16 +229,19 @@ public class RouteExecutionManager {
             } catch (Exception e) {
                 // ignore
             }
+
         }
+
         return msgLatLong;
+
     }
 
-    public List<RouteExecutionDTO> getAssignedRouteExecutions(String userId) {
+    public List<RouteExecutionDTO> getAssignedRouteExecutions(String userId) throws ValidationException {
 
         // TODO this method name should match similar method to get Routes for a specific consumer
 
         if (!StringUtils.hasText(userId)) {
-            throw new IllegalArgumentException("userId is required");
+            throw new ValidationException("userId is required");
         }
 
         PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -259,27 +262,27 @@ public class RouteExecutionManager {
 
     }
 
-    public RouteExecutionDTO getAssignedRouteExecution(String userId, String routeExecutionId) {
+    public RouteExecutionDTO getAssignedRouteExecution(String userId, String routeExecutionId) throws ValidationException {
 
         if (!StringUtils.hasText(routeExecutionId)) {
-            throw new IllegalArgumentException("route execution id is required");
+            throw new ValidationException("route execution id is required");
         }
 
         PersistenceManager pm = PMF.get().getPersistenceManager();
 
         RouteExecution routeExecution = pm.getObjectById(RouteExecution.class, routeExecutionId);
         if (routeExecution == null || !routeExecution.getRouteExecutor().getUserId().equals(userId)) {
-            throw new IllegalArgumentException("Unknown route execution");
+            throw new ValidationException("Unknown route execution");
         }
 
         return routeExecution.getDTO();
 
     }
 
-    public List<RouteExecutionDTO> getRouteExecutions(String routeId) {
+    public List<RouteExecutionDTO> getRouteExecutions(String routeId) throws ValidationException {
 
         if (!StringUtils.hasText(routeId)) {
-            throw new IllegalArgumentException("route id is required");
+            throw new ValidationException("route id is required");
         }
 
         PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -338,6 +341,7 @@ public class RouteExecutionManager {
      * @return
      */
     public List<String> getRouteExecutionsForConsumer(String consumerID) {
+
         PersistenceManager pm = PMF.get().getPersistenceManager();
 
         // TODO For a consumer, get the Routes of Interest, get the RouteExecution from there
