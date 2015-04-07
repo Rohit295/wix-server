@@ -2,9 +2,11 @@ package com.wix.server.web.admin;
 
 import com.wix.common.model.RouteDTO;
 import com.wix.common.model.RouteExecutionDTO;
-import com.wix.server.manager.ObservableConfigurationManager;
+import com.wix.common.model.RouteLocationDTO;
+import com.wix.common.model.RouteRunDTO;
 import com.wix.server.manager.RouteConfigurationManager;
 import com.wix.server.manager.RouteExecutionManager;
+import com.wix.server.persistence.RouteExecution;
 import com.wix.server.persistence.UserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,10 +18,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.net.CacheRequest;
+import java.util.*;
 
 /**
  * Created by racastur on 08-11-2014.
@@ -38,9 +38,38 @@ public class AdminRoutesController {
 
         List<RouteDTO> routes = routeConfigurationManager.getAllRoutes();
 
+        List<RouteInfo> routeInfos = new ArrayList<>(routes.size());
+        for (RouteDTO route : routes) {
+
+            int numberOfStops = 0;
+            for (RouteLocationDTO routeLocation : route.getRouteLocations()) {
+                if (routeLocation.getRouteStop() != null) {
+                    numberOfStops++;
+                }
+            }
+
+            boolean runningStatus = false;
+            long lastRunCompletedTimestamp = 0;
+
+            List<RouteRunDTO> routeRuns = routeConfigurationManager.getAllRouteRuns(route.getId());
+            for (RouteRunDTO routeRun : routeRuns) {
+                List<RouteExecutionDTO> routeExecutions = routeExecutionManager.getRouteExecutions(routeRun.getId());
+                if (routeExecutions != null && routeExecutions.size() > 0) {
+                    if (routeExecutions.get(0).getEndTime() <= 0) {
+                        runningStatus = true;
+                    } else {
+                        lastRunCompletedTimestamp = routeExecutions.get(0).getEndTime();
+                    }
+                }
+            }
+
+            routeInfos.add(new RouteInfo(route, numberOfStops, routeRuns, runningStatus, lastRunCompletedTimestamp));
+
+        }
+
         Map<String, Object> model = new HashMap<>();
         model.put("activeTab", "routes");
-        model.put("routes", routes);
+        model.put("routes", routeInfos);
         model.put("userInfo", ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser());
 
         return new ModelAndView("admin/allroutes", model);
@@ -92,7 +121,7 @@ public class AdminRoutesController {
         // TODO security check!! accessible only by admin roles
 
         try {
-            routeConfigurationManager.createUpdateRoute(route);
+            routeConfigurationManager.createRoute(route);
         } catch (Exception e) {
             Map<String, Object> model = new HashMap<String, Object>();
             model.put("route", route);
@@ -114,7 +143,7 @@ public class AdminRoutesController {
             // TODO throw an error
         }
 
-        RouteDTO route = routeConfigurationManager.getRoute(routeExecution.getRouteId(), true);
+        RouteDTO route = routeConfigurationManager.getRoute(routeExecution.getRouteRunId(), true);
         if (route == null) {
             // TODO throw an error
         }

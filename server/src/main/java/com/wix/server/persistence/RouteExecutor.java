@@ -22,6 +22,15 @@ public class RouteExecutor implements Serializable {
         setId(UUID.randomUUID().toString());
     }
 
+    public RouteExecutor(RouteExecutorDTO dto) {
+
+        this();
+
+        setUserId(dto.getUserId());
+        setDeviceId(dto.getDeviceId());
+
+    }
+
     public String getId() {
         return id;
     }

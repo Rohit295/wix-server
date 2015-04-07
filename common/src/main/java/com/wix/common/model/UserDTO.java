@@ -23,6 +23,15 @@ public class UserDTO {
 
     }
 
+    public UserDTO(String organizationId, String name, String userName, String password, String emailId, boolean adminRole) {
+        this.organizationId = organizationId;
+        this.name = name;
+        this.userName = userName;
+        this.password = password;
+        this.emailId = emailId;
+        this.adminRole = adminRole;
+    }
+
     public String getId() {
         return id;
     }

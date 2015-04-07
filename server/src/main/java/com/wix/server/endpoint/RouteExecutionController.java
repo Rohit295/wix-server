@@ -3,6 +3,7 @@ package com.wix.server.endpoint;
 import com.wix.common.model.RouteExecutionDTO;
 import com.wix.common.model.RouteExecutionLocationDTO;
 import com.wix.common.model.RouteExecutionStatus;
+import com.wix.common.model.RouteExecutorDTO;
 import com.wix.server.manager.RouteExecutionManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -29,12 +29,22 @@ public class RouteExecutionController {
     @Autowired
     private RouteExecutionManager routeExecutionManager;
 
+    @RequestMapping(value = "routeruns/{routeRunId}/execute", method = RequestMethod.POST)
+    public RouteExecutionDTO startRouteRunExecution(@RequestHeader("userId") String userId,
+                                                    @PathVariable("routeRunId") String routeRunId) {
+        try {
+            return routeExecutionManager.startRouteRunExecution(routeRunId, new RouteExecutorDTO(userId, ""));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @RequestMapping(value = "routeexecutions/{routeExecutionId}/status", method = RequestMethod.POST)
     public RouteExecutionDTO updateRouteExecutionStatus(@RequestHeader("userId") String userId,
                                                         @PathVariable("routeExecutionId") String routeExecutionId,
                                                         @RequestParam("executionStatus") RouteExecutionStatus routeExecutionStatus) {
         try {
-            return routeExecutionManager.updateRouteExecutionStatus(userId, routeExecutionId, routeExecutionStatus);
+            return routeExecutionManager.updateRouteExecutionStatus(routeExecutionId, routeExecutionStatus);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -46,25 +56,6 @@ public class RouteExecutionController {
                                            @RequestBody RouteExecutionLocationDTO routeExecutionLocationDTO) {
         try {
             routeExecutionManager.postRouteExecutionLocation(userId, routeExecutionId, routeExecutionLocationDTO);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @RequestMapping(value = "routeexecutions", method = RequestMethod.GET)
-    public List<RouteExecutionDTO> getAssignedRouteExecutions(@RequestHeader("userId") String userId) {
-        try {
-            return routeExecutionManager.getAssignedRouteExecutions(userId);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @RequestMapping(value = "routeexecutions/{routeExecutionId}", method = RequestMethod.GET)
-    public RouteExecutionDTO getAssignedRouteExecution(@RequestHeader("userId") String userId,
-                                                       @PathVariable("routeExecutionId") String routeExecutionId) {
-        try {
-            return routeExecutionManager.getAssignedRouteExecution(userId, routeExecutionId);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

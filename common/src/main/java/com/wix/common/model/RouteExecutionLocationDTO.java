@@ -5,48 +5,53 @@ package com.wix.common.model;
  */
 public class RouteExecutionLocationDTO {
 
-	private String id;
+    private String id;
 
-	private LocationDTO location;
+    private LocationDTO location;
 
-	private long timestamp; // utc time
+    private long timestamp; // utc time
 
-	private RouteExecutionStopDTO routeExecutionStop;
+    private RouteExecutionStopDTO routeExecutionStop;
 
-	public RouteExecutionLocationDTO() {
+    public RouteExecutionLocationDTO() {
 
-	}
+    }
 
-	public String getId() {
-		return id;
-	}
+    public RouteExecutionLocationDTO(LocationDTO location, RouteExecutionStopDTO routeExecutionStop) {
+        this.location = location;
+        this.routeExecutionStop = routeExecutionStop;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public LocationDTO getLocation() {
-		return location;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public void setLocation(LocationDTO location) {
-		this.location = location;
-	}
+    public LocationDTO getLocation() {
+        return location;
+    }
 
-	public long getTimestamp() {
-		return timestamp;
-	}
+    public void setLocation(LocationDTO location) {
+        this.location = location;
+    }
 
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
-	}
+    public long getTimestamp() {
+        return timestamp;
+    }
 
-	public RouteExecutionStopDTO getRouteExecutionStop() {
-		return routeExecutionStop;
-	}
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
 
-	public void setRouteExecutionStop(RouteExecutionStopDTO routeExecutionStop) {
-		this.routeExecutionStop = routeExecutionStop;
-	}
+    public RouteExecutionStopDTO getRouteExecutionStop() {
+        return routeExecutionStop;
+    }
+
+    public void setRouteExecutionStop(RouteExecutionStopDTO routeExecutionStop) {
+        this.routeExecutionStop = routeExecutionStop;
+    }
 
 }

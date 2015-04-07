@@ -13,10 +13,6 @@ public class RouteDTO {
 
     private String name;
 
-    private StopPurpose defaultStopPurpose;
-
-    private String executionStartTime; // a one time route or a scheduled route
-
     private List<RouteLocationDTO> routeLocations;
 
     public RouteDTO() {
@@ -45,22 +41,6 @@ public class RouteDTO {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public StopPurpose getDefaultStopPurpose() {
-        return defaultStopPurpose;
-    }
-
-    public void setDefaultStopPurpose(StopPurpose defaultStopPurpose) {
-        this.defaultStopPurpose = defaultStopPurpose;
-    }
-
-    public String getExecutionStartTime() {
-        return executionStartTime;
-    }
-
-    public void setExecutionStartTime(String executionStartTime) {
-        this.executionStartTime = executionStartTime;
     }
 
     public List<RouteLocationDTO> getRouteLocations() {

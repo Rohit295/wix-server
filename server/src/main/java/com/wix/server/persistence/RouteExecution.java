@@ -21,7 +21,7 @@ public class RouteExecution {
     private String id;
 
     @Persistent
-    private String routeId;
+    private String routeRunId;
 
     @Persistent(serialized = "true")
     private List<RouteExecutionLocation> routeExecutionLocations;
@@ -52,12 +52,12 @@ public class RouteExecution {
         this.id = id;
     }
 
-    public String getRouteId() {
-        return routeId;
+    public String getRouteRunId() {
+        return routeRunId;
     }
 
-    public void setRouteId(String routeId) {
-        this.routeId = routeId;
+    public void setRouteRunId(String routeRunId) {
+        this.routeRunId = routeRunId;
     }
 
     public List<RouteExecutionLocation> getRouteExecutionLocations() {
@@ -96,7 +96,7 @@ public class RouteExecution {
 
         RouteExecutionDTO dto = new RouteExecutionDTO();
         dto.setId(id);
-        dto.setRouteId(routeId);
+        dto.setRouteRunId(routeRunId);
 
         List<RouteExecutionLocationDTO> locationDTOs = new ArrayList<RouteExecutionLocationDTO>();
         if (routeExecutionLocations != null) {

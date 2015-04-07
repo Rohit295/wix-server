@@ -21,6 +21,14 @@ public class ObservableDTO {
 
     }
 
+    public ObservableDTO(String organizationId, String name, String routeId, String routeStopId, StopPurpose stopPurpose) {
+        this.organizationId = organizationId;
+        this.name = name;
+        this.routeId = routeId;
+        this.routeStopId = routeStopId;
+        this.stopPurpose = stopPurpose;
+    }
+
     public String getId() {
         return id;
     }

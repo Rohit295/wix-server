@@ -52,7 +52,11 @@ public class AdminObservablesController {
         Collections.sort(observables, new Comparator<ObservableDTO>() {
             @Override
             public int compare(ObservableDTO o1, ObservableDTO o2) {
-                return 0;
+                if (o1.getRouteId().equals(o2.getRouteId())) {
+                    return o1.getRouteStopId().compareTo(o2.getRouteStopId());
+                } else {
+                    return o1.getRouteId().compareTo(o2.getRouteId());
+                }
             }
         });
 

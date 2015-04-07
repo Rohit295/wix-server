@@ -47,7 +47,7 @@ public class RegistrationEndpoint implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        initializer.init();
+        //initializer.init();
     }
 
 }

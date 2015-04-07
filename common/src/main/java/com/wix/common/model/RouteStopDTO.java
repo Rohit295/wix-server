@@ -5,28 +5,33 @@ package com.wix.common.model;
  */
 public class RouteStopDTO {
 
-	private String name;
+    private String name;
 
-	private String address; // This should be a class ideally
+    private String address; // This should be a class ideally
 
-	public RouteStopDTO() {
+    public RouteStopDTO() {
 
-	}
+    }
 
-	public String getName() {
-		return name;
-	}
+    public RouteStopDTO(String name, String address) {
+        this.name = name;
+        this.address = address;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getAddress() {
-		return address;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setAddress(String address) {
-		this.address = address;
-	}
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
 }

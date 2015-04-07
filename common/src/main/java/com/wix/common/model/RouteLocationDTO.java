@@ -5,38 +5,43 @@ package com.wix.common.model;
  */
 public class RouteLocationDTO {
 
-	private String id;
+    private String id;
 
-	private LocationDTO location;
+    private LocationDTO location;
 
-	private RouteStopDTO routeStop;
+    private RouteStopDTO routeStop;
 
-	public RouteLocationDTO() {
+    public RouteLocationDTO() {
 
-	}
+    }
 
-	public String getId() {
-		return id;
-	}
+    public RouteLocationDTO(LocationDTO location, RouteStopDTO routeStop) {
+        this.location = location;
+        this.routeStop = routeStop;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public LocationDTO getLocation() {
-		return location;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public void setLocation(LocationDTO location) {
-		this.location = location;
-	}
+    public LocationDTO getLocation() {
+        return location;
+    }
 
-	public RouteStopDTO getRouteStop() {
-		return routeStop;
-	}
+    public void setLocation(LocationDTO location) {
+        this.location = location;
+    }
 
-	public void setRouteStop(RouteStopDTO routeStop) {
-		this.routeStop = routeStop;
-	}
+    public RouteStopDTO getRouteStop() {
+        return routeStop;
+    }
+
+    public void setRouteStop(RouteStopDTO routeStop) {
+        this.routeStop = routeStop;
+    }
 
 }

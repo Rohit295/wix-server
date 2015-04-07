@@ -4,15 +4,14 @@ import com.google.appengine.api.channel.ChannelMessage;
 import com.google.appengine.api.channel.ChannelService;
 import com.google.appengine.api.channel.ChannelServiceFactory;
 import com.wix.common.model.*;
+import com.wix.server.exception.UnknownEntityException;
 import com.wix.server.exception.ValidationException;
 import com.wix.server.persistence.*;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 import javax.jdo.Extent;
@@ -27,7 +26,44 @@ public class RouteExecutionManager {
 
     private static final Logger log = Logger.getLogger(RouteExecutionManager.class.getName());
 
-    public RouteExecutionDTO updateRouteExecutionStatus(String userId, String routeExecutionId, RouteExecutionStatus routeExecutionStatus) throws ValidationException {
+    public RouteExecutionDTO startRouteRunExecution(String routeRunId, RouteExecutorDTO routeExecutor) throws ValidationException, UnknownEntityException {
+
+        if (!StringUtils.hasText(routeRunId) || routeExecutor == null) {
+            throw new ValidationException("routeRunId and routeExecutor are required");
+        }
+
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+        try {
+
+            RouteRun routeRun = pm.getObjectById(RouteRun.class, routeRunId);
+            if (routeRun == null || !routeRun.getRouteExecutor().getUserId().equals(routeExecutor.getUserId())) {
+                throw new UnknownEntityException("Unknown route run");
+            }
+
+            if (!routeRun.getRouteExecutor().getUserId().equals(routeExecutor.getUserId())) {
+                throw new ValidationException("Invalid route executor");
+            }
+
+            RouteExecution routeExecution = new RouteExecution();
+            routeExecution.setRouteRunId(routeRunId);
+            routeExecution.setStartTime(Calendar.getInstance().getTimeInMillis());
+            routeExecution.setRouteExecutor(new RouteExecutor(routeExecutor));
+
+            pm.makePersistent(routeExecution);
+
+            return routeExecution.getDTO();
+
+        } finally {
+            try {
+                pm.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+
+    }
+
+    public RouteExecutionDTO updateRouteExecutionStatus(String routeExecutionId, RouteExecutionStatus routeExecutionStatus) throws ValidationException {
 
         if (!StringUtils.hasText(routeExecutionId)) {
             // throw validation exception
@@ -236,67 +272,37 @@ public class RouteExecutionManager {
 
     }
 
-    public List<RouteExecutionDTO> getAssignedRouteExecutions(String userId) throws ValidationException {
+    public List<RouteExecutionDTO> getRouteExecutions(String routeRunId) {
 
-        // TODO this method name should match similar method to get Routes for a specific consumer
-
-        if (!StringUtils.hasText(userId)) {
-            throw new ValidationException("userId is required");
-        }
-
-        PersistenceManager pm = PMF.get().getPersistenceManager();
-
-        Extent<RouteExecution> routeExecutions = pm.getExtent(RouteExecution.class);
-        if (routeExecutions == null) {
+        if (!StringUtils.hasText(routeRunId)) {
             return new ArrayList<>();
-        }
-
-        List<RouteExecutionDTO> dtos = new ArrayList<>();
-        for (RouteExecution routeExecution : routeExecutions) {
-            if (routeExecution.getRouteExecutor().getUserId().equals(userId)) {
-                dtos.add(routeExecution.getDTO());
-            }
-        }
-
-        return dtos;
-
-    }
-
-    public RouteExecutionDTO getAssignedRouteExecution(String userId, String routeExecutionId) throws ValidationException {
-
-        if (!StringUtils.hasText(routeExecutionId)) {
-            throw new ValidationException("route execution id is required");
-        }
-
-        PersistenceManager pm = PMF.get().getPersistenceManager();
-
-        RouteExecution routeExecution = pm.getObjectById(RouteExecution.class, routeExecutionId);
-        if (routeExecution == null || !routeExecution.getRouteExecutor().getUserId().equals(userId)) {
-            throw new ValidationException("Unknown route execution");
-        }
-
-        return routeExecution.getDTO();
-
-    }
-
-    public List<RouteExecutionDTO> getRouteExecutions(String routeId) throws ValidationException {
-
-        if (!StringUtils.hasText(routeId)) {
-            throw new ValidationException("route id is required");
         }
 
         PersistenceManager pm = PMF.get().getPersistenceManager();
 
         Query q = pm.newQuery(RouteExecution.class);
-        q.setFilter("routeId == routeIdParam");
-        q.declareParameters("String routeIdParam");
+        q.setFilter("routeRunId == routeRunIdParam");
+        q.declareParameters("String routeRunIdParam");
 
         try {
 
-            List<RouteExecution> results = (List<RouteExecution>) q.execute(routeId);
+            List<RouteExecution> results = (List<RouteExecution>) q.execute(routeRunId);
             if (results == null || results.isEmpty()) {
                 return new ArrayList<>();
             }
+
+            Collections.sort(results, new Comparator<RouteExecution>() {
+                @Override
+                public int compare(RouteExecution o1, RouteExecution o2) {
+                    if (o1.getStartTime() > o2.getStartTime()) {
+                        return -1;
+                    } else if (o1.getStartTime() < o2.getStartTime()) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+            });
 
             List<RouteExecutionDTO> dtos = new ArrayList<>();
             for (RouteExecution routeExecution : results) {

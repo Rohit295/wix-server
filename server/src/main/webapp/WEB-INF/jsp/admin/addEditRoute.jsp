@@ -18,17 +18,19 @@
 
 <script>
 
+var map;
+var directionsDisplay;
 var directionsService = new google.maps.DirectionsService();
 
 function initialize() {
 
-  var directionsDisplay = new google.maps.DirectionsRenderer();
+  directionsDisplay = new google.maps.DirectionsRenderer({suppressMarkers: true});
 
   var mapOptions = {
     zoom: 13
   }
 
-  var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+  map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
   directionsDisplay.setMap(map);
 
   var waypts = [];
@@ -63,9 +65,30 @@ function initialize() {
   directionsService.route(request, function(response, status) {
     if (status == google.maps.DirectionsStatus.OK) {
       directionsDisplay.setDirections(response);
+      addMarkers();
     }
   });
 
+}
+
+function addMarkers() {
+
+    var infowindow = new google.maps.InfoWindow();
+
+    <c:forEach items="${route.routeLocations}" var="rl" varStatus="idx">
+        <c:if test="${not empty rl.routeStop}">
+          var marker = new google.maps.Marker({
+                position: new google.maps.LatLng("${rl.location.latitude}", "${rl.location.longitude}"),
+                map: map,
+                title: '${rl.routeStop.name}'
+            });
+            google.maps.event.addListener(marker, 'click', function() {
+                var contentStr = '<div><h3>${rl.routeStop.name}</h3><h6>${rl.routeStop.address}</h6></div>';
+                infowindow.setContent(contentStr);
+                infowindow.open(map,this);
+            });
+        </c:if>
+    </c:forEach>
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);
@@ -95,7 +118,9 @@ google.maps.event.addDomListener(window, 'load', initialize);
 			<tbody>
 				<c:forEach items="${routeExecutions}" var="routeExecution">
                     <tr>
-                        <td align="center"><c:out value="${routeExecution.id}" />&nbsp;&nbsp;<a href="/admin/routeexecution/${routeExecution.id}">Monitor</a></td>
+                        <td align="center"><c:out value="${routeExecution.id}" />
+                            &nbsp;&nbsp;<a href="/admin/routeexecution/${routeExecution.id}">Monitor</a>
+                        </td>
                         <td align="center"><c:out value="${routeExecution.routeExecutor.userId}" /></td>
                         <jsp:useBean id="startDateObject" class="java.util.Date" />
                         <jsp:setProperty name="startDateObject" property="time" value="${routeExecution.startTime}" />

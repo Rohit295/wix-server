@@ -14,6 +14,11 @@ public class RouteExecutorDTO {
     public RouteExecutorDTO() {
     }
 
+    public RouteExecutorDTO(String userId, String deviceId) {
+        this.userId = userId;
+        this.deviceId = deviceId;
+    }
+
     public String getId() {
         return id;
     }

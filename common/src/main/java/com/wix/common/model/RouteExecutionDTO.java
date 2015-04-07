@@ -9,7 +9,7 @@ public class RouteExecutionDTO {
 
     private String id;
 
-    private String routeId;
+    private String routeRunId;
 
     private List<RouteExecutionLocationDTO> routeExecutionLocations;
 
@@ -31,12 +31,12 @@ public class RouteExecutionDTO {
         this.id = id;
     }
 
-    public String getRouteId() {
-        return routeId;
+    public String getRouteRunId() {
+        return routeRunId;
     }
 
-    public void setRouteId(String routeId) {
-        this.routeId = routeId;
+    public void setRouteRunId(String routeRunId) {
+        this.routeRunId = routeRunId;
     }
 
     public List<RouteExecutionLocationDTO> getRouteExecutionLocations() {

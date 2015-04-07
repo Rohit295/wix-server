@@ -26,12 +26,6 @@ public class Route {
     @Persistent
     private String organizationId;
 
-    @Persistent
-    private String defaultStopPurpose = StopPurpose.Dropoff.name();
-
-    @Persistent
-    private String executionStartTime; // a one time route or a scheduled route
-
     @Persistent(serialized = "true")
     private List<RouteLocation> routeLocations;
 
@@ -45,8 +39,6 @@ public class Route {
 
         setName(dto.getName());
         setOrganizationId(dto.getOrganizationId());
-        setDefaultStopPurpose(dto.getDefaultStopPurpose().name());
-        setExecutionStartTime(dto.getExecutionStartTime());
 
         List<RouteLocation> routeLocations = new ArrayList<RouteLocation>();
         if (dto.getRouteLocations() != null) {
@@ -82,22 +74,6 @@ public class Route {
         this.organizationId = organizationId;
     }
 
-    public String getDefaultStopPurpose() {
-        return defaultStopPurpose;
-    }
-
-    public void setDefaultStopPurpose(String defaultStopPurpose) {
-        this.defaultStopPurpose = defaultStopPurpose;
-    }
-
-    public String getExecutionStartTime() {
-        return executionStartTime;
-    }
-
-    public void setExecutionStartTime(String executionStartTime) {
-        this.executionStartTime = executionStartTime;
-    }
-
     public List<RouteLocation> getRouteLocations() {
         return routeLocations;
     }
@@ -113,8 +89,6 @@ public class Route {
         dto.setId(id);
         dto.setName(name);
         dto.setOrganizationId(organizationId);
-        dto.setDefaultStopPurpose(Enum.valueOf(StopPurpose.class, defaultStopPurpose));
-        dto.setExecutionStartTime(executionStartTime);
 
         List<RouteLocationDTO> routeLocationDTOs = new ArrayList<RouteLocationDTO>();
         if (routeLocations != null) {
@@ -127,4 +101,5 @@ public class Route {
         return dto;
 
     }
+
 }

@@ -8,18 +8,15 @@ import javax.jdo.Extent;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 
+import com.wix.common.model.RouteRunDTO;
 import com.wix.server.exception.DuplicateEntityException;
 import com.wix.server.exception.UnknownEntityException;
 import com.wix.server.exception.ValidationException;
+import com.wix.server.persistence.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.wix.common.model.RouteDTO;
-import com.wix.common.model.RouteExecutionDTO;
-import com.wix.server.persistence.PMF;
-import com.wix.server.persistence.Route;
-import com.wix.server.persistence.RouteExecution;
-import com.wix.server.persistence.RouteExecutor;
 
 /**
  * Created by racastur on 05-03-2015.
@@ -29,7 +26,7 @@ public class RouteConfigurationManager {
 
     private static final Logger log = Logger.getLogger(RouteConfigurationManager.class.getName());
 
-    public RouteDTO createUpdateRoute(RouteDTO routeDTO) throws ValidationException, UnknownEntityException, DuplicateEntityException {
+    public RouteDTO createRoute(RouteDTO routeDTO) throws ValidationException, UnknownEntityException, DuplicateEntityException {
 
         if (routeDTO == null || !StringUtils.hasText(routeDTO.getName())) {
             // throw validation exception
@@ -40,84 +37,16 @@ public class RouteConfigurationManager {
 
         try {
 
-            boolean newRoute = false;
-
-            Route route;
-            if (StringUtils.hasText(routeDTO.getId())) {
-
-                route = pm.getObjectById(Route.class, routeDTO.getId());
-                if (route == null) {
-                    throw new UnknownEntityException("Unknown route");
-                }
-
-                Route routeBySameName = getRouteByName(routeDTO.getName());
-                if (routeBySameName != null && !routeBySameName.getId().equals(route.getId())) {
-                    throw new DuplicateEntityException("another route with given name already exists");
-                }
-
-                route.setName(routeDTO.getName());
-                route.setOrganizationId(routeDTO.getOrganizationId());
-                route.setDefaultStopPurpose(routeDTO.getDefaultStopPurpose().name());
-                route.setExecutionStartTime(routeDTO.getExecutionStartTime());
-                //route.setRouteLocations(routeDTO.getRouteLocations());
-
-            } else {
-
-                newRoute = true;
-
-                route = getRouteByName(routeDTO.getName());
-                if (route != null) {
-                    throw new DuplicateEntityException("route with given name already exists");
-                }
-
-                route = new Route(routeDTO);
-
+            Route route = getRouteByName(routeDTO.getName());
+            if (route != null) {
+                throw new DuplicateEntityException("route with given name already exists");
             }
 
-            if (newRoute) {
-                pm.makePersistent(route);
-            }
+            route = new Route(routeDTO);
+
+            pm.makePersistent(route);
 
             return route.getDTO();
-
-        } finally {
-            try {
-                pm.close();
-            } catch (Exception e) {
-                // ignore
-            }
-        }
-
-    }
-
-    public RouteExecutionDTO assignRouteExecution(String routeId, String userId, String deviceId) throws ValidationException, UnknownEntityException {
-
-        if (!StringUtils.hasText(routeId) || !StringUtils.hasText(userId) || !StringUtils.hasText(deviceId)) {
-            // throw validation exception
-            throw new ValidationException("routeId, userId, deviceId are required");
-        }
-
-        PersistenceManager pm = PMF.get().getPersistenceManager();
-        try {
-
-            Route route = pm.getObjectById(Route.class, routeId);
-            if (route == null) {
-                throw new UnknownEntityException("Unknown route");
-            }
-
-            RouteExecution routeExecution = new RouteExecution();
-            routeExecution.setRouteId(routeId);
-
-            // TODO validate userId
-            RouteExecutor routeExecutor = new RouteExecutor();
-            routeExecutor.setUserId(userId);
-            routeExecutor.setDeviceId(deviceId);
-
-            routeExecution.setRouteExecutor(routeExecutor);
-
-            pm.makePersistent(routeExecution);
-
-            return routeExecution.getDTO();
 
         } finally {
             try {
@@ -135,10 +64,10 @@ public class RouteConfigurationManager {
 
         Extent<Route> routeExtent = pm.getExtent(Route.class);
         if (routeExtent == null) {
-            return new ArrayList<RouteDTO>();
+            return new ArrayList<>();
         }
 
-        List<RouteDTO> dtos = new ArrayList<RouteDTO>();
+        List<RouteDTO> dtos = new ArrayList<>();
         for (Route route : routeExtent) {
             dtos.add(route.getDTO());
         }
@@ -164,7 +93,111 @@ public class RouteConfigurationManager {
 
     }
 
-    public Route getRouteByName(String name) {
+    public RouteRunDTO configureRouteRun(String routeId, RouteRunDTO routeRunDTO) throws ValidationException, UnknownEntityException {
+
+        if (!StringUtils.hasText(routeId) || routeRunDTO == null) {
+            // throw validation exception
+            throw new ValidationException("routeId, routeRun are required");
+        }
+
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+        try {
+
+            Route route = pm.getObjectById(Route.class, routeId);
+            if (route == null) {
+                throw new UnknownEntityException("Unknown route");
+            }
+
+            RouteRun routeRun = new RouteRun();
+            routeRun.setRouteId(routeRunDTO.getRouteId());
+            routeRun.setDefaultStopPurpose(routeRunDTO.getDefaultStopPurpose().name());
+            routeRun.setExecutionStartTime(routeRunDTO.getExecutionStartTime());
+            routeRun.setRouteExecutor(new RouteExecutor(routeRunDTO.getRouteExecutor()));
+
+            pm.makePersistent(routeRun);
+
+            return routeRun.getDTO();
+
+        } finally {
+            try {
+                pm.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+
+    }
+
+    public List<RouteRunDTO> getAssignedRouteRuns(String userId) {
+
+        // TODO this method name should match similar method to get Routes for a specific consumer
+
+        if (!StringUtils.hasText(userId)) {
+            return null;
+        }
+
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+
+        Extent<RouteRun> routeRuns = pm.getExtent(RouteRun.class);
+        if (routeRuns == null) {
+            return new ArrayList<>();
+        }
+
+        List<RouteRunDTO> dtos = new ArrayList<>();
+        for (RouteRun routeRun : routeRuns) {
+            if (routeRun.getRouteExecutor().getUserId().equals(userId)) {
+                dtos.add(routeRun.getDTO());
+            }
+        }
+
+        return dtos;
+
+    }
+
+    public List<RouteRunDTO> getAllRouteRuns(String routeId) {
+
+        if (!StringUtils.hasText(routeId)) {
+            return new ArrayList<>();
+        }
+
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+
+        Query q = pm.newQuery(RouteRun.class);
+        q.setFilter("routeId == routeIdParam");
+        q.declareParameters("String routeIdParam");
+
+        List<RouteRun> results = (List<RouteRun>) q.execute(routeId);
+        if (results == null || results.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<RouteRunDTO> dtos = new ArrayList<>();
+        for (RouteRun routeRun : results) {
+            dtos.add(routeRun.getDTO());
+        }
+
+        return dtos;
+
+    }
+
+    public RouteRunDTO getRouteRun(String routeId, String routeRunId) {
+
+        if (!StringUtils.hasText(routeId) || !StringUtils.hasText(routeRunId)) {
+            return null;
+        }
+
+        PersistenceManager pm = PMF.get().getPersistenceManager();
+
+        RouteRun routeRun = pm.getObjectById(RouteRun.class, routeId);
+        if (routeRun == null) {
+            return null;
+        }
+
+        return routeRun.getDTO();
+
+    }
+
+    private Route getRouteByName(String name) {
 
         PersistenceManager pm = PMF.get().getPersistenceManager();
 

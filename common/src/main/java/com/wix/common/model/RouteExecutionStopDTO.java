@@ -11,6 +11,10 @@ public class RouteExecutionStopDTO {
 
     }
 
+    public RouteExecutionStopDTO(String routeStopId) {
+        this.routeStopId = routeStopId;
+    }
+
     public String getRouteStopId() {
         return routeStopId;
     }
