@@ -1,5 +1,7 @@
 package com.wix.common.model;
 
+import java.util.List;
+
 /**
  * Created by racastur on 12-11-2014.
  */
@@ -14,6 +16,8 @@ public class RouteRunDTO {
     private RouteExecutorDTO routeExecutor;
 
     private String executionStartTime; // a one time route or a scheduled route
+
+    private List<String> observableIds;
 
     public RouteRunDTO() {
 
@@ -57,6 +61,14 @@ public class RouteRunDTO {
 
     public void setExecutionStartTime(String executionStartTime) {
         this.executionStartTime = executionStartTime;
+    }
+
+    public List<String> getObservableIds() {
+        return observableIds;
+    }
+
+    public void setObservableIds(List<String> observableIds) {
+        this.observableIds = observableIds;
     }
 
 }

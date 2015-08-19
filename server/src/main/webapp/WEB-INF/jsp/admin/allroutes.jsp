@@ -114,12 +114,6 @@ google.maps.event.addDomListener(window, 'load', initialize);
 
 </script>
 
-<style>
-html,body,.col-md-12,.row {
-  height:100%;
-}
-</style>
-
 </head>
 <body>
 
@@ -128,29 +122,32 @@ html,body,.col-md-12,.row {
     <div class="col-md-12" style="padding-top: 15px; padding-bottom: 15px;">
         <div class="row">
             <div class="col-sm-4" style="padding: 10px; background-color: lightgrey;">
-                <c:forEach items="${routes}" var="route" varStatus="idx">
-                    <div class="row" style="padding-top: 5px; padding-bottom: 5px; margin-right: 0px; margin-left: 0px;">
-                        <div class="row" style="margin-right: 0px; margin-left: 0px;">
-                            <h4>${idx.index + 1}&nbsp;&nbsp;${route.route.name}&nbsp;&nbsp;<a href="/admin/routes/${route.route.id}">Edit</a></h4>
-                        </div>
-                        <div class="row" style="margin-right: 0px; margin-left: 0px;">
-                            ${route.numberOfStops} Stops
-                        </div>
-                        <div class="row" style="margin-right: 0px; margin-left: 0px;">
-                            ${fn:length(route.routeRuns)} Runs
-                        </div>
-                        <div class="row" style="margin-right: 0px; margin-left: 0px;">
-                            <c:if test="${route.runningStatus}">
-                                <b>Currently running</b>
-                            </c:if>
-                            <c:if test="${not route.runningStatus && route.lastRunCompletedTimestamp gt 0}">
-                                <jsp:useBean id="endTime" class="java.util.Date" />
-                                <jsp:setProperty name="endTime" property="time" value="${route.lastRunCompletedTimestamp}" />
-                                <b>Run last completed @ <fmt:formatDate value="${endTime}" pattern="MM/dd/yyyy HH:mm" /></b>
-                            </c:if>
-                        </div>
-                    </div>
-                </c:forEach>
+                <div class="row" style="font-size: 24px;">
+                    Routes &nbsp; <b><a href="/admin/routes/${route.route.id}">Add Route</a></b>
+                </div>
+                <hr/>
+                <ul class="list-unstyled">
+                    <c:forEach items="${routes}" var="route" varStatus="idx">
+                        <li style="padding-bottom: 10px;">
+                            <div class="row" style="font-size: 16px;">
+                                ${route.route.name}&nbsp;<b><a href="/admin/routes/${route.route.id}">Edit</a></b>
+                            </div>
+                            <div class="row">
+                                ${route.numberOfStops} Stops &nbsp; - &nbsp; ${fn:length(route.routeRuns)} Runs
+                            </div>
+                            <div class="row">
+                                <c:if test="${route.runningStatus}">
+                                    <b>Currently running</b>
+                                </c:if>
+                                <c:if test="${not route.runningStatus && route.lastRunCompletedTimestamp gt 0}">
+                                    <jsp:useBean id="endTime" class="java.util.Date" />
+                                    <jsp:setProperty name="endTime" property="time" value="${route.lastRunCompletedTimestamp}" />
+                                    <b>Run last completed @ <fmt:formatDate value="${endTime}" pattern="MM/dd/yyyy HH:mm" /></b>
+                                </c:if>
+                            </div>
+                        </li>
+                    </c:forEach>
+                </ul>
             </div>
             <div class="col-sm-8" style="height: 100%">
                 <div id="map-canvas" style="width: 100%; height: 100%;"></div>

@@ -100,42 +100,36 @@ google.maps.event.addDomListener(window, 'load', initialize);
 
     <%@ include file="/WEB-INF/jsp/admin/admin-top-bar.jsp"%>
 
-	<div align="center" class="container">
-
-        <h2>Route [${route.name}]</h4>
-
-        <h4>Route Executions</h4>
-
-		<table class="table table-striped table-condensed table-bordered table-hover">
-			<thead>
-				<tr>
-					<th>Id</th>
-					<th>Executing User Id</th>
-					<th>Start Time</th>
-					<th>End Time</th>
-				</tr>
-			</thead>
-			<tbody>
-				<c:forEach items="${routeExecutions}" var="routeExecution">
-                    <tr>
-                        <td align="center"><c:out value="${routeExecution.id}" />
-                            &nbsp;&nbsp;<a href="/admin/routeexecution/${routeExecution.id}">Monitor</a>
-                        </td>
-                        <td align="center"><c:out value="${routeExecution.routeExecutor.userId}" /></td>
-                        <jsp:useBean id="startDateObject" class="java.util.Date" />
-                        <jsp:setProperty name="startDateObject" property="time" value="${routeExecution.startTime}" />
-                        <td align="center"><fmt:formatDate value="${startDateObject}" pattern="MM/dd/yyyy HH:mm" /></td>
-                        <td align="center"><c:out value="${routeExecution.endTime}" /></td>
-                    </tr>
-                </c:forEach>
-			</tbody>
-		</table>
-
-        <h4>Configured Route</h4>
-
-        <div id="map-canvas" style="width:1000px; height:800px;"></div>
-
-	</div>
+    <div class="col-md-12" style="padding-top: 15px; padding-bottom: 15px;">
+        <div class="row">
+            <div class="col-sm-4" style="padding: 10px; background-color: lightgrey;">
+                <div style="font-size: 24px;">${route.name}</div>
+                <div class="row" style="padding-top: 5px; padding-bottom: 5px;">
+                    <div style="font-size: 18px;">Route Stops &nbsp; - &nbsp; <b><a href="">Add Stop</a></b></div>
+                    <hr/>
+                    <ol>
+                        <c:forEach items="${route.routeLocations}" var="routeLocation" varStatus="idx">
+                            <c:if test="${not empty routeLocation.routeStop}">
+                                <li>${routeLocation.routeStop.name}</li>
+                            </c:if>
+                        </c:forEach>
+                    </ol>
+                </div>
+                <div class="row">
+                    <div style="font-size: 18px;">Route Runs &nbsp; - &nbsp; <b><a href="">Add Run</a></b></div>
+                    <hr/>
+                    <ol>
+                        <c:forEach items="${routeRuns}" var="routeRun" varStatus="idx">
+                            <li>${routeRun.executionStartTime} by ${users[routeRun.routeExecutor.userId].name}</li>
+                        </c:forEach>
+                    </ol>
+                </div>
+            </div>
+            <div class="col-sm-8" style="height: 100%">
+                <div id="map-canvas" style="width: 100%; height: 100%;"></div>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>

@@ -2,6 +2,7 @@ package com.wix.server.persistence;
 
 import com.wix.common.model.*;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.jdo.annotations.PersistenceCapable;
@@ -30,6 +31,9 @@ public class RouteRun {
     @Persistent
     private String executionStartTime; // a one time route or a scheduled route
 
+    @Persistent(serialized = "true")
+    private List<String> observableIds;
+
     public RouteRun() {
         setId(UUID.randomUUID().toString());
     }
@@ -42,6 +46,7 @@ public class RouteRun {
         setDefaultStopPurpose(dto.getDefaultStopPurpose().name());
         setRouteExecutor(new RouteExecutor(dto.getRouteExecutor()));
         setExecutionStartTime(dto.getExecutionStartTime());
+        setObservableIds(dto.getObservableIds());
 
     }
 
@@ -85,6 +90,14 @@ public class RouteRun {
         this.executionStartTime = executionStartTime;
     }
 
+    public List<String> getObservableIds() {
+        return observableIds;
+    }
+
+    public void setObservableIds(List<String> observableIds) {
+        this.observableIds = observableIds;
+    }
+
     public RouteRunDTO getDTO() {
 
         RouteRunDTO dto = new RouteRunDTO();
@@ -94,6 +107,7 @@ public class RouteRun {
         dto.setDefaultStopPurpose(Enum.valueOf(StopPurpose.class, defaultStopPurpose));
         dto.setRouteExecutor(routeExecutor.getDTO());
         dto.setExecutionStartTime(executionStartTime);
+        dto.setObservableIds(observableIds);
 
         return dto;
 

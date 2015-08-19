@@ -95,3 +95,17 @@ div.dataTables_paginate {
     background: #f6f6f4;
     border-radius: 10px;
 }
+
+html,body,.col-md-12,.row {
+  height:100%;
+}
+
+.row {
+  margin-right: 0px;
+  margin-left: 0px;
+}
+
+hr {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}

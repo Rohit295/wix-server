@@ -1,12 +1,11 @@
 package com.wix.server.web.admin;
 
-import com.wix.common.model.RouteDTO;
-import com.wix.common.model.RouteExecutionDTO;
-import com.wix.common.model.RouteLocationDTO;
-import com.wix.common.model.RouteRunDTO;
+import com.wix.common.model.*;
 import com.wix.server.manager.RouteConfigurationManager;
 import com.wix.server.manager.RouteExecutionManager;
+import com.wix.server.manager.UserManager;
 import com.wix.server.persistence.RouteExecution;
+import com.wix.server.persistence.RouteRun;
 import com.wix.server.persistence.UserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,6 +31,9 @@ public class AdminRoutesController {
 
     @Autowired
     private RouteExecutionManager routeExecutionManager;
+
+    @Autowired
+    private UserManager userManager;
 
     @RequestMapping("/admin/routes")
     public ModelAndView getAllRoutes() {
@@ -84,17 +86,18 @@ public class AdminRoutesController {
             // TODO throw an error
         }
 
-        List<RouteExecutionDTO> routeExecutions = null;
-        try {
-            routeExecutions = routeExecutionManager.getRouteExecutions(routeId);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        List<RouteRunDTO> routeRuns = routeConfigurationManager.getAllRouteRuns(routeId);
+
+        Map<String, UserDTO> users = new HashMap<>();
+        for (RouteRunDTO routeRun : routeRuns) {
+            users.put(routeRun.getRouteExecutor().getUserId(), userManager.getUser(routeRun.getRouteExecutor().getUserId()));
         }
 
         Map<String, Object> model = new HashMap<>();
         model.put("activeTab", "routes");
         model.put("route", route);
-        model.put("routeExecutions", routeExecutions);
+        model.put("routeRuns", routeRuns);
+        model.put("users", users);
         model.put("userInfo", ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser());
 
         return new ModelAndView("admin/addEditRoute", model);
@@ -109,6 +112,7 @@ public class AdminRoutesController {
         Map<String, Object> model = new HashMap<>();
         model.put("activeTab", "routes");
         model.put("route", new RouteDTO());
+        model.put("routeRuns", new ArrayList<>());
         model.put("userInfo", ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser());
 
         return new ModelAndView("admin/addEditRoute", model);
@@ -116,7 +120,7 @@ public class AdminRoutesController {
     }
 
     @RequestMapping(value = "/admin/routes", method = RequestMethod.POST)
-    public ModelAndView saveAccount(@ModelAttribute("route") RouteDTO route) {
+    public ModelAndView saveRoute(@ModelAttribute("route") RouteDTO route) {
 
         // TODO security check!! accessible only by admin roles
 
